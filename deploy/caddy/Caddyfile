@@ -1,0 +1,96 @@
+# ==========================================================================
+# Caddy: раздача собранного сайта и автоматические сертификаты.
+#
+# Файл попадает в образ по пути /etc/caddy/Caddyfile и управляется
+# переменными окружения контейнера:
+#
+#   DOMAIN       — домен сайта
+#   HTTP_PORT    — порт для HTTP и ACME-челленджа внутри контейнера
+#   HTTPS_PORT   — порт для HTTPS и TLS-ALPN внутри контейнера
+#   ACME_EMAIL   — почта для Let's Encrypt (уведомления об истечении)
+#
+# Порты по умолчанию непривилегированные, чтобы контейнер запускался
+# под rootless podman без изменения sysctl. На хосте они пробрасываются
+# так: 80 → 8080, 443 → 8443. Если контейнер запускается с
+# --network=host или от root, выставьте HTTP_PORT=80 и HTTPS_PORT=443.
+#
+# Дублирование правил с public/_headers (для GitHub Pages) намеренное:
+# если меняете заголовки, правьте оба файла.
+# ==========================================================================
+
+{
+	http_port {$HTTP_PORT:8080}
+	https_port {$HTTPS_PORT:8443}
+
+	# Почта для регистрации в ACME: Let's Encrypt пришлёт на неё
+	# предупреждения за 30 и 7 дней до истечения сертификата.
+	# По умолчанию — служебный адрес домена, чтобы контейнер стартовал
+	# даже с пустым окружением. Задайте ACME_EMAIL со своей почтой.
+	email {$ACME_EMAIL:webmaster@psy.yainna.ru}
+}
+
+{$DOMAIN:psy.yainna.ru} {
+	root * /srv
+
+	encode zstd gzip
+
+	# --- Страницы ----------------------------------------------------------
+
+	handle {
+		# Сайт собран с trailingSlash: always, поэтому адреса вида
+		# /privacy/ раздаются как /privacy/index.html.
+		file_server
+	}
+
+	handle_errors {
+		# Свой 404 вместо стандартного текста Caddy, статус сохраняется.
+		@notfound expression {http.error.status_code} == 404
+		handle @notfound {
+			rewrite * /404.html
+			file_server
+		}
+		respond "{http.error.status_code} {http.error.status_text}" {http.error.status_code}
+	}
+
+	# --- Заголовки ---------------------------------------------------------
+	#
+	# Внимание к синтаксису: матчеры объявляются на уровне сайта, а не
+	# внутри блока header. Форма "поле { <матчер> <значение> }" внутри
+	# header не поддерживается — Caddy создаёт мусорные заголовки вида
+	# "*.woff2: *.woff" вместо правил кеширования.
+
+	# Сборка Astro хэширует имена ассетов — их можно кешировать навсегда.
+	@immutable path /_astro/* *.woff2 *.woff
+	header @immutable Cache-Control "public, max-age=31536000, immutable"
+
+	# HTML всегда свежий: иначе после деплоя посетители видели бы старое.
+	@documents path / *.html
+	header @documents Cache-Control "public, max-age=0, must-revalidate"
+
+	header {
+		# Полный набор продублирован в public/_headers для GitHub Pages.
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		X-Frame-Options "DENY"
+		Permissions-Policy "geolocation=(), microphone=(), camera=(), interest-cohort=()"
+		Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; form-action 'self' https:; frame-ancestors 'none'; base-uri 'self'; object-src 'none'; upgrade-insecure-requests"
+		-Server
+	}
+
+	log {
+		output stdout
+		format console
+	}
+}
+
+# Служебный адрес для HEALTHCHECK и внешнего мониторинга: отвечает
+# сразу, без редиректа на HTTPS, поэтому проверка не зависит от
+# выпущенного сертификата. Доступен только изнутри контейнера.
+http://127.0.0.1:{$HTTP_PORT:8080} {
+	handle /healthz {
+		header Cache-Control "no-store"
+		respond "ok" 200
+	}
+	respond 404
+}

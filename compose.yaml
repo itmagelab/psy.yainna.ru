@@ -1,0 +1,77 @@
+# ==========================================================================
+# Запуск на своём хостинге.
+#
+#   podman-compose up -d          # из корня репозитория
+#   podman-compose logs -f site
+#   podman-compose down
+#
+# Либо без compose:
+#   podman run -d --name psy \
+#     -p 80:8080 -p 443:8443 \
+#     -e DOMAIN=psy.yainna.ru -e ACME_EMAIL=ваша@почта \
+#     -v psy-caddy-data:/data -v psy-caddy-config:/config \
+#     ghcr.io/itmagelab/psy.yainna.ru:latest
+#
+# Сертификаты лежат в volume psy-caddy-data: без него Caddy выпускал бы
+# новый сертификат при каждом пересоздании контейнера и упирался в лимиты
+# Let's Encrypt.
+#
+# Порты 80 и 443 на хосте — привилегированные. Если podman запущен без root
+# (rootless), добавьте на хосте один раз:
+#
+#   sudo sysctl -w net.ipv4.ip_unprivileged_port_start=80
+#   echo 'net.ipv4.ip_unprivileged_port_start=80' | sudo tee /etc/sysctl.d/99-podman-ports.conf
+# ==========================================================================
+
+services:
+  site:
+    build:
+      context: .
+      dockerfile: Containerfile
+      args:
+        # Адрес попадает в canonical, og:image, sitemap и robots.txt.
+        SITE_URL: https://psy.yainna.ru
+        BASE_PATH: /
+    # Готовый образ из GitHub Packages. Соберите его через
+    # .github/workflows/container.yml или scripts/container.sh push
+    image: ghcr.io/itmagelab/psy.yainna.ru:latest
+    container_name: psy
+    restart: unless-stopped
+
+    environment:
+      DOMAIN: psy.yainna.ru
+      HTTP_PORT: '8080'
+      HTTPS_PORT: '8443'
+      # ACME_EMAIL сюда НЕ вписывайте пустой строкой: Caddy подставляет
+      # значение по умолчанию только для незаданной переменной, а пустая
+      # строка делает конфигурацию невалидной. Раскомментируйте и укажите
+      # свою почту — на неё Let's Encrypt пришлёт предупреждение
+      # об истечении сертификата.
+      # ACME_EMAIL: ваша@почта
+
+    ports:
+      - '80:8080'
+      - '443:8443'
+
+    volumes:
+      - caddy-data:/data
+      - caddy-config:/config
+
+    # Сертификат Let's Encrypt живёт 90 дней, Let's Encrypt шлёт письма
+    # за 30 и 7 дней до истечения. Пустой контейнер без этого будет
+    # предупреждён за неделю до падения сайта.
+    healthcheck:
+      test: ['CMD', 'wget', '-q', '-O', '/dev/null', 'http://127.0.0.1:8080/healthz']
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+
+    logging:
+      driver: journald
+      options:
+        tag: psy-caddy
+
+volumes:
+  caddy-data:
+  caddy-config:

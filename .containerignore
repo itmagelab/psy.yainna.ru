@@ -1,0 +1,23 @@
+# Всё, что не нужно для сборки статики.
+# Чем меньше контекст, тем быстрее сборка и меньше лишних слоёв.
+
+.git
+.github
+.gitignore
+.editorconfig
+.prettierrc.json
+.prettierignore
+node_modules
+dist
+.astro
+
+# Генерируется на этапе сборки внутри контейнера
+public/og.png
+public/apple-touch-icon.png
+
+# Локальные заметки
+*.log
+.DS_Store
+doc/DEPLOY.md
+README.md
+AGENTS.md

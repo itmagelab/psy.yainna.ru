@@ -68,17 +68,39 @@ photo:
 
 ## Публикация
 
-Пуш в `master` запускает `.github/workflows/deploy.yml`: сборка → GitHub Pages.
-Полный запуск и проверка — в `.github/workflows/ci.yml`.
+Основной способ — **GitHub Pages**: пуш в `master` запускает
+`.github/workflows/deploy.yml`, сайт открывается по адресу домена.
 
 Workflow сам определяет адрес публикации. Единственная ручная настройка —
-переменная репозитория `CUSTOM_DOMAIN` (Settings → Secrets and variables →
-Actions → Variables): как только она задана и домен направлен на GitHub Pages,
-следующий деплой соберёт сайт под этот домен. Подробности — в `AGENTS.md`.
+переменная репозитория `CUSTOM_DOMAIN` (Settings → Secrets and variables
+→ Actions → Variables): как только она задана и домен направлен на GitHub
+Pages, следующий деплой соберёт сайт под этот домен. Подробности — в
+`AGENTS.md`.
+
+### Свой хостинг: контейнер с Caddy
+
+Второй способ — собрать контейнер и запустить на сервере. В образе только
+Caddy и готовая статика (~60 МБ); сертификаты Let's Encrypt выпускаются
+автоматически.
+
+```bash
+./scripts/container.sh run       # собрать и запустить локально
+
+podman run -d --name psy \
+  -p 80:8080 -p 443:8443 \
+  -e DOMAIN=psy.yainna.ru -e ACME_EMAIL=ваша@почта \
+  -v psy-caddy-data:/data -v psy-caddy-config:/config \
+  ghcr.io/itmagelab/psy.yainna.ru:latest
+```
+
+Образ для `linux/amd64` и `linux/arm64` публикуется в GitHub Packages
+автоматически при каждом деплое. Пошаговая инструкция, порты под rootless
+podman и диагностика сертификатов — в [`doc/DEPLOY.md`](doc/DEPLOY.md).
 
 ## Документы
 
 - [`AGENTS.md`](AGENTS.md) — как работать с проектом: стек, структура, правила, чек-листы.
 - [`doc/DESIGN.md`](doc/DESIGN.md) — визуальная система: палитра, шрифты, сетка, компоненты.
 - [`doc/CONTENT.md`](doc/CONTENT.md) — как писать тексты и что заменить перед запуском.
+- [`doc/DEPLOY.md`](doc/DEPLOY.md) — контейнер, Caddy, сертификаты, Packages, диагностика.
 - [`doc/ABOUT.md`](doc/ABOUT.md) — исходное техническое задание.

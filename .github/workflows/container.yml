@@ -1,0 +1,104 @@
+name: Container image
+
+# Сборка контейнера со статикой и Caddy, публикация образа в GitHub Packages.
+# Локальный токен gh обычно без scope write:packages, а у GITHUB_TOKEN
+# в Actions этот доступ есть — поэтому образ собирается здесь.
+
+on:
+  push:
+    branches: [master]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: container-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  IMAGE: ghcr.io/itmagelab/psy.yainna.ru
+  REGISTRY: ghcr.io
+
+jobs:
+  build:
+    name: Сборка и публикация
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Получить код
+        uses: actions/checkout@v7
+
+      # arm64-сборки нужны для дешёвых VPS на ARM; без qemu они не соберутся.
+      - name: Настроить QEMU
+        uses: docker/setup-qemu-action@v4
+
+      - name: Установить podman
+        uses: redhat-actions/podman-login@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Определить теги
+        id: meta
+        run: |
+          VERSION="$(git describe --tags --always --dirty 2>/dev/null || echo dev)"
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            echo "tag=${VERSION}" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=sha-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+          fi
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+
+      - name: Сборка образа
+        run: |
+          podman build \
+            --format docker \
+            --platform linux/amd64,linux/arm64 \
+            --build-arg "SITE_URL=https://psy.yainna.ru" \
+            --build-arg "BASE_PATH=/" \
+            --label "org.opencontainers.image.version=${{ steps.meta.outputs.version }}" \
+            --label "org.opencontainers.image.revision=${{ github.sha }}" \
+            --tag "${IMAGE}:${{ steps.meta.outputs.tag }}" \
+            --tag "${IMAGE}:latest" \
+            -f Containerfile .
+
+      # Публикуем всегда, кроме pull_request: там образ и не нужен.
+      - name: Публикация в Packages
+        if: github.event_name != 'pull_request'
+        run: |
+          podman push "${IMAGE}:${{ steps.meta.outputs.tag }}"
+          if [ "${{ steps.meta.outputs.tag }}" != "latest" ]; then
+            podman push "${IMAGE}:latest"
+          fi
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            podman push "${IMAGE}:${{ steps.meta.outputs.version }}"
+          fi
+
+      # Страховка: если образ собрался, но не запускается, деплой не должен
+      # выглядеть зелёным.
+      - name: Проверка образа
+        run: ./scripts/container.sh check
+
+      - name: Отчёт
+        if: always()
+        run: |
+          {
+            echo "### Контейнер"
+            echo
+            echo "Образ: \`${IMAGE}:${{ steps.meta.outputs.tag }}\`"
+            echo "Версия: \`${{ steps.meta.outputs.version }}\`"
+            echo "Коммит: ${{ github.sha }}"
+            echo
+            echo '```bash'
+            echo "podman run -d --name psy -p 80:8080 -p 443:8443 \\"
+            echo "  -e DOMAIN=psy.yainna.ru -e ACME_EMAIL=ваша@почта \\"
+            echo "  -v psy-caddy-data:/data -v psy-caddy-config:/config \\"
+            echo "  ${IMAGE}:${{ steps.meta.outputs.tag }}"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

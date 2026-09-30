@@ -25,6 +25,7 @@
 | Клиентский JS | без фреймворков, нативные модули                          | —                |
 | Проверки      | `astro check`, ESLint 10, Prettier 3                      | —                |
 | Публикация    | GitHub Actions → GitHub Pages                             | —                |
+| Контейнер     | Containerfile (podman/docker) + Caddy                     | —                |
 
 Пакетный менеджер — **npm** (не pnpm: локальный corepack несовместим с pnpm 12).
 
@@ -39,6 +40,13 @@ npm run check        # astro check: типы .astro и .ts
 npm run lint         # eslint
 npm run format       # prettier --write
 npm run verify       # check + lint + format:check — перед коммитом
+
+# Контейнер
+./scripts/container.sh build   # собрать образ
+./scripts/container.sh run     # собрать и запустить локально
+./scripts/container.sh check   # проверить, что в образе есть сайт
+./scripts/container.sh push    # отправить образ в GitHub Packages
+podman-compose up -d           # запуск на сервере из compose.yaml
 ```
 
 ## 4. Где что править
@@ -164,7 +172,38 @@ npm run verify       # check + lint + format:check — перед коммито
   на подпути они перестанут работать. Использовать `import.meta.env.BASE_URL`.
 - Не коммитить `dist/`, `public/og.png`, `node_modules/`.
 
-## 11. Деплой
+## 11. Контейнер
+
+Сайт статический, поэтому в образе нет ни Node, ни сборщика: только Caddy
+и готовые файлы. Сборка двухэтапная — `Containerfile`.
+
+```bash
+./scripts/container.sh build   # локальный образ
+./scripts/container.sh run     # запуск на :8080
+./scripts/container.sh check   # проверка содержимого образа
+```
+
+Правила, которые нельзя нарушать:
+
+- **Caddy слушает непривилегированные 8080 и 8443.** Иначе контейнер не
+  запустится под rootless podman без изменения sysctl. На хосте порты
+  пробрасываются 80→8080 и 443→8443.
+- **`ACME_EMAIL` не задавать пустой строкой.** Caddy подставляет значение
+  по умолчанию только для незаданной переменной, а пустая строка валит
+  конфигурацию. В `compose.yaml` переменная закомментирована.
+- **Сертификаты лежат в volume `/data`.** Без volume Caddy выпускал бы
+  новый сертификат при каждом пересоздании и упёрся бы в лимиты
+  Let's Encrypt.
+- **Матчеры в Caddyfile объявляются на уровне сайта**, а не внутри блока
+  `header`. Форма `поле { <матчер> <значение> }` внутри `header` не
+  поддерживается и создаёт мусорные заголовки вместо правил кеширования.
+- **Заголовки безопасности продублированы** в `deploy/caddy/Caddyfile` и
+  в `public/_headers`: первый нужен контейнеру, второй — GitHub Pages.
+  Правки в оба файла.
+
+Полная инструкция по развёртыванию, портам и диагностике — `doc/DEPLOY.md`.
+
+## 12. Деплой
 
 `master` → GitHub Actions → GitHub Pages (`.github/workflows/deploy.yml`).
 Перед сборкой прогоняются `astro check` и сама сборка.
@@ -186,7 +225,7 @@ Workflow сам вычисляет адрес и базовый путь: для
 деплой соберёт сайт под него и добавит `CNAME` в артефакт. Пока переменная
 пустая, сайт работает по адресу `itmagelab.github.io/psy.yainna.ru`.
 
-## 12. Приёмка перед коммитом
+## 13. Приёмка перед коммитом
 
 ```bash
 npm run verify   # check + lint + форматирование
@@ -196,7 +235,13 @@ npm run build    # сборка должна быть зелёной
 После изменения вёрстки — открыть `npm run preview` и проверить на 390px
 и 1440px: порядок блоков, отсутствие горизонтальной прокрутки, контраст.
 
-## 13. TODO перед публикацией
+Если менялись `Containerfile`, `deploy/caddy/Caddyfile` или `compose.yaml`:
+
+```bash
+./scripts/container.sh run     # и проверить curl -I http://localhost:8080/
+```
+
+## 14. TODO перед публикацией
 
 Список плейсхолдеров, которые обязан заменить специалист, лежит в
 `doc/CONTENT.md`, раздел «Что заменить перед запуском». Он же отмечен
