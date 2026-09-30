@@ -58,6 +58,10 @@ cmd_push() {
 	echo "▸ Публикация ${IMAGE}:${TAG}"
 	podman push "${IMAGE}:${TAG}"
 	echo "✓ Образ в Packages: https://github.com/orgs/itmagelab/packages/container/package/${IMAGE##*/}"
+	echo
+	echo "  Обратите внимание: локально собирается только платформа вашей"
+	echo "  машины. Мультиплатформенный образ (amd64 + arm64) публикует"
+	echo "  CI: .github/workflows/container.yml."
 }
 
 cmd_run() {

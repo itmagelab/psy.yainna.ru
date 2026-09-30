@@ -27,7 +27,7 @@ jobs:
   build:
     name: Сборка и публикация
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 30
 
     steps:
       - name: Получить код
@@ -37,7 +37,7 @@ jobs:
       - name: Настроить QEMU
         uses: docker/setup-qemu-action@v4
 
-      - name: Установить podman
+      - name: Войти в реестр
         uses: redhat-actions/podman-login@v2
         with:
           registry: ${{ env.REGISTRY }}
@@ -55,50 +55,69 @@ jobs:
           fi
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
 
-      - name: Сборка образа
+      # podman build --platform a,b не превращает образ в multi-arch:
+      # в реестр уезжает только текущая платформа. Поэтому платформы
+      # собираются по отдельности, а манифест собирается вручную.
+      - name: Сборка образов
         run: |
-          podman build \
-            --format docker \
-            --platform linux/amd64,linux/arm64 \
-            --build-arg "SITE_URL=https://psy.yainna.ru" \
-            --build-arg "BASE_PATH=/" \
-            --label "org.opencontainers.image.version=${{ steps.meta.outputs.version }}" \
-            --label "org.opencontainers.image.revision=${{ github.sha }}" \
-            --tag "${IMAGE}:${{ steps.meta.outputs.tag }}" \
-            --tag "${IMAGE}:latest" \
-            -f Containerfile .
+          set -euo pipefail
+          for arch in amd64 arm64; do
+            echo "▸ Сборка linux/${arch}"
+            podman build \
+              --format docker \
+              --platform "linux/${arch}" \
+              --build-arg "SITE_URL=https://psy.yainna.ru" \
+              --build-arg "BASE_PATH=/" \
+              --label "org.opencontainers.image.version=${{ steps.meta.outputs.version }}" \
+              --label "org.opencontainers.image.revision=${{ github.sha }}" \
+              --tag "${IMAGE}:build-${arch}" \
+              -f Containerfile .
+          done
 
       # Публикуем всегда, кроме pull_request: там образ и не нужен.
       - name: Публикация в Packages
         if: github.event_name != 'pull_request'
         run: |
-          podman push "${IMAGE}:${{ steps.meta.outputs.tag }}"
-          if [ "${{ steps.meta.outputs.tag }}" != "latest" ]; then
-            podman push "${IMAGE}:latest"
-          fi
+          set -euo pipefail
+          publish() {
+            local tag="$1"
+            podman manifest rm "docker://${IMAGE}:${tag}" >/dev/null 2>&1 || true
+            podman manifest rm "${IMAGE}:${tag}" >/dev/null 2>&1 || true
+            podman manifest create "${IMAGE}:${tag}" \
+              "${IMAGE}:build-amd64" "${IMAGE}:build-arm64"
+            podman manifest push --all "${IMAGE}:${tag}" "docker://${IMAGE}:${tag}"
+          }
+
+          publish "${{ steps.meta.outputs.tag }}"
+          publish "latest"
           if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
-            podman push "${IMAGE}:${{ steps.meta.outputs.version }}"
+            publish "${{ steps.meta.outputs.version }}"
           fi
 
       # Страховка: если образ собрался, но не запускается, деплой не должен
       # выглядеть зелёным.
       - name: Проверка образа
-        run: ./scripts/container.sh check
+        if: github.event_name != 'pull_request'
+        run: ./scripts/container.sh check "${{ steps.meta.outputs.tag }}"
 
       - name: Отчёт
         if: always()
+        env:
+          TAG: ${{ steps.meta.outputs.tag }}
+          VERSION: ${{ steps.meta.outputs.version }}
         run: |
           {
             echo "### Контейнер"
             echo
-            echo "Образ: \`${IMAGE}:${{ steps.meta.outputs.tag }}\`"
-            echo "Версия: \`${{ steps.meta.outputs.version }}\`"
+            echo "Образ: \`${IMAGE}:${TAG}\`"
+            echo "Версия: \`${VERSION}\`"
             echo "Коммит: ${{ github.sha }}"
+            echo "Платформы: linux/amd64, linux/arm64"
             echo
             echo '```bash'
             echo "podman run -d --name psy -p 80:8080 -p 443:8443 \\"
             echo "  -e DOMAIN=psy.yainna.ru -e ACME_EMAIL=ваша@почта \\"
             echo "  -v psy-caddy-data:/data -v psy-caddy-config:/config \\"
-            echo "  ${IMAGE}:${{ steps.meta.outputs.tag }}"
+            echo "  ${IMAGE}:${TAG}"
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
