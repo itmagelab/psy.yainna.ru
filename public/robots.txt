@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://psy.yainna.ru/sitemap-index.xml

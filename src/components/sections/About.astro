@@ -1,0 +1,84 @@
+---
+import SectionHeader from '../ui/SectionHeader.astro';
+import Photo from '../ui/Photo.astro';
+import Reveal from '../ui/Reveal.astro';
+import { render } from 'astro:content';
+import type { CollectionEntry } from 'astro:content';
+import type { z } from 'astro/zod';
+import type { sectionSchema } from '../../schemas/sections';
+
+type Data = Extract<z.infer<typeof sectionSchema>, { kind: 'about' }>;
+
+interface Props {
+  data: Data;
+  entry: CollectionEntry<'sections'>;
+}
+
+const { data, entry } = Astro.props;
+const { Content } = await render(entry);
+const titleId = 'about-title';
+---
+
+<section id={data.anchor} class="section bg-mist-100" aria-labelledby={titleId}>
+  <div class="page">
+    <div class="grid gap-12 lg:grid-cols-12 lg:gap-16">
+      <Reveal class="lg:col-span-5" as="div">
+        <div class="lg:sticky lg:top-28">
+          <Photo
+            {...data.photo}
+            frameClass="rounded-xl shadow-soft"
+            sizes="(min-width: 1024px) 38vw, 92vw"
+          />
+
+          {data.facts.length > 0 && (
+            <ul class="mt-6 flex flex-wrap gap-2">
+              {data.facts.map((fact) => (
+                <li class="chip">{fact}</li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </Reveal>
+
+      <div class="lg:col-span-7">
+        <Reveal>
+          <SectionHeader eyebrow={data.eyebrow} title={data.title} id={titleId} />
+        </Reveal>
+
+        <Reveal class="mt-9" delay={60}>
+          <div class="prose-soft">
+            <Content />
+          </div>
+        </Reveal>
+
+        {data.quote && (
+          <Reveal class="mt-12" delay={100}>
+            <figure class="rounded-lg border-l-2 border-clay-300 bg-cream-50/70 p-6 sm:p-8">
+              <blockquote class="font-display text-h4 text-balance text-ink-900">
+                «{data.quote.text}»
+              </blockquote>
+              {data.quote.source && (
+                <figcaption class="mt-4 text-tiny tracking-wide text-ink-500 uppercase">
+                  {data.quote.source}
+                </figcaption>
+              )}
+            </figure>
+          </Reveal>
+        )}
+
+        {data.values.length > 0 && (
+          <Reveal class="mt-12" delay={140}>
+            <ul class="grid gap-x-10 gap-y-8 sm:grid-cols-2">
+              {data.values.map((value) => (
+                <li>
+                  <h3 class="font-display text-h4 text-ink-900">{value.title}</h3>
+                  <p class="mt-2 text-small text-pretty text-ink-500">{value.text}</p>
+                </li>
+              ))}
+            </ul>
+          </Reveal>
+        )}
+      </div>
+    </div>
+  </div>
+</section>

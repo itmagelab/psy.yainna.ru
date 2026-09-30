@@ -1,0 +1,43 @@
+---
+import Base from '../layouts/Base.astro';
+import { site } from '../data/site';
+
+const nav = [
+  { label: 'Обо мне', href: '/#about' },
+  { label: 'Как проходит', href: '/#process' },
+  { label: 'Стоимость', href: '/#pricing' },
+  { label: 'Вопросы', href: '/#faq' },
+];
+---
+
+<Base
+  title={`Страница не найдена — ${site.role}`}
+  description="Такой страницы нет. Вернитесь на главную, чтобы записаться на консультацию."
+  noindex
+  nav={nav}
+  legal={[
+    { label: 'Политика конфиденциальности', href: '/privacy/' },
+    { label: 'Согласие на обработку персональных данных', href: '/consent/' },
+  ]}
+>
+  <section class="section">
+    <div class="page">
+      <div class="mx-auto max-w-[42rem] text-center">
+        <p class="eyebrow justify-center">Ошибка 404</p>
+        <h1 class="mt-6 text-h2">Такой страницы нет</h1>
+        <p class="mt-5 text-lead text-ink-500">
+          Возможно, ссылка устарела. На главной собрано всё о работе: как проходят сессии, сколько
+          они стоят и как записаться.
+        </p>
+        <div class="mt-10 flex flex-wrap justify-center gap-3">
+          <a class="btn" href="/">
+            На главную
+          </a>
+          <a class="btn btn--ghost" href="/#contact">
+            Записаться на встречу
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+</Base>

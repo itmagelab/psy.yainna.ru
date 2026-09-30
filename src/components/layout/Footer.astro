@@ -1,0 +1,114 @@
+---
+import { site } from '../../data/site';
+
+export interface NavItem {
+  label: string;
+  href: string;
+}
+
+export interface LegalLink {
+  label: string;
+  href: string;
+}
+
+interface Props {
+  items: NavItem[];
+  legal: LegalLink[];
+  /** Готовая строка стоимости, например «2 500 ₽ за сессию». */
+  price?: string;
+  format?: string;
+  /** Короткий текст из секции kind: footer. */
+  note?: string;
+}
+
+const { items, legal, price, format, note } = Astro.props;
+const year = new Date().getFullYear();
+---
+
+<footer class="relative border-t border-cream-300 bg-cream-50">
+  <div class="page section--tight">
+    <div class="grid gap-10 md:grid-cols-12 md:gap-8">
+      <div class="md:col-span-4">
+        <p class="font-display text-h3 text-ink-900">{site.fullName}</p>
+        <p class="mt-2 text-small text-ink-500">{site.role}</p>
+        <p class="mt-5 text-small text-ink-500">
+          {price && <span class="text-ink-900">{price}</span>}
+          {price && format && <span> · {format}</span>}
+        </p>
+      </div>
+
+      <div class="md:col-span-3">
+        <h2 class="font-sans text-eyebrow font-medium tracking-[0.16em] text-ink-500 uppercase">
+          Где работаю
+        </h2>
+        <ul class="mt-4 space-y-2.5 text-small text-ink-700">
+          <li>Очно: {site.address}</li>
+          <li>{site.onlineNote}</li>
+          <li>{format ?? 'Индивидуальная психотерапия'}</li>
+        </ul>
+      </div>
+
+      <div class="md:col-span-2">
+        <h2 class="font-sans text-eyebrow font-medium tracking-[0.16em] text-ink-500 uppercase">
+          Разделы
+        </h2>
+        <ul class="mt-4 space-y-2.5 text-small">
+          {items.map((item) => (
+            <li>
+              <a class="link-soft" href={item.href}>
+                {item.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div class="md:col-span-3">
+        <h2 class="font-sans text-eyebrow font-medium tracking-[0.16em] text-ink-500 uppercase">
+          Связаться
+        </h2>
+        <ul class="mt-4 space-y-2.5 text-small">
+          <li>
+            <a class="link-soft" href={site.socials.telegram} rel="noopener">
+              Telegram
+            </a>
+          </li>
+          <li>
+            <a class="link-soft" href={`mailto:${site.contacts.email}`}>
+              E-mail
+            </a>
+          </li>
+          <li>
+            <a class="link-soft" href={site.socials.instagram} rel="noopener">
+              Instagram
+            </a>
+          </li>
+        </ul>
+        {legal.length > 0 && (
+          <ul class="mt-6 space-y-2 text-tiny text-ink-500">
+            {legal.map((link) => (
+              <li>
+                <a class="link-soft" href={link.href}>
+                  {link.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </div>
+
+    <div class="rule-soft mt-12"></div>
+
+    {note && <p class="mt-8 max-w-[58ch] text-small text-pretty text-ink-500">{note}</p>}
+
+    <div class="mt-8 flex flex-col gap-3 text-tiny text-ink-500 sm:flex-row sm:items-start sm:justify-between">
+      <p>
+        © {year} {site.fullName}
+      </p>
+      <p class="max-w-[46ch] sm:text-right">
+        Информация на сайте не является публичной офертой и не заменяет консультацию специалиста.
+      </p>
+    </div>
+  </div>
+</footer>

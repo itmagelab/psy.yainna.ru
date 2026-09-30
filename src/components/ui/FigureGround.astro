@@ -1,0 +1,67 @@
+---
+/**
+ * Фирменный мотив: «фигура и фон».
+ *
+ * Две соприкасающиеся формы — буквальная иллюстрация принципа фигуры и фона
+ * из гштальт-подхода. Используется как декоративный акцент и как заглушка
+ * вместо фотографии. Семантически всегда aria-hidden.
+ */
+interface Props {
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+---
+
+<svg
+  class={className}
+  viewBox="0 0 480 600"
+  fill="none"
+  preserveAspectRatio="xMidYMid slice"
+  aria-hidden="true"
+  focusable="false"
+>
+  <defs>
+    <linearGradient id="figureground-sky" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="var(--color-mist-200)"></stop>
+      <stop offset="52%" stop-color="var(--color-cream-200)"></stop>
+      <stop offset="100%" stop-color="var(--color-clay-100)"></stop>
+    </linearGradient>
+  </defs>
+
+  <rect width="480" height="600" fill="url(#figureground-sky)"></rect>
+
+  <!-- «Земля»: крупная окружность, из которой выделяется фигура -->
+  <circle cx="352" cy="168" r="196" fill="var(--color-mist-300)" opacity="0.5"></circle>
+
+  <!-- «Фигура»: плотная тёплая форма -->
+  <circle cx="196" cy="316" r="168" fill="var(--color-clay-200)" opacity="0.72"></circle>
+
+  <!-- Зона контакта: место, где формы соприкасаются -->
+  <circle cx="300" cy="238" r="74" fill="var(--color-cream-50)" opacity="0.5"></circle>
+  <circle
+    cx="300"
+    cy="238"
+    r="74"
+    stroke="var(--color-ink-900)"
+    stroke-opacity="0.22"
+    stroke-width="1.25"
+  ></circle>
+
+  <!-- Тонкая линия контура — «внимание», а не «декор» -->
+  <path
+    d="M92 470 C 92 470, 96 520, 140 540"
+    stroke="var(--color-ink-900)"
+    stroke-opacity="0.18"
+    stroke-width="1.25"
+    stroke-linecap="round"
+  ></path>
+  <circle
+    cx="352"
+    cy="168"
+    r="196"
+    stroke="var(--color-ink-900)"
+    stroke-opacity="0.14"
+    stroke-width="1.25"
+  ></circle>
+</svg>

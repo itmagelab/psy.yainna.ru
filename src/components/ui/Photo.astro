@@ -1,0 +1,57 @@
+---
+import { Picture } from 'astro:assets';
+import { getPhoto, pictureProps } from '../../lib/photos';
+import FigureGround from './FigureGround.astro';
+import type { PhotoData } from '../../schemas/sections';
+
+interface Props extends PhotoData {
+  /** Приоритет загрузки: true только для главной фотографии (LCP). */
+  priority?: boolean;
+  sizes?: string;
+  class?: string;
+  /** Скругление и тень задаются этим классом-обёрткой. */
+  frameClass?: string;
+}
+
+const {
+  alt,
+  width,
+  height,
+  position,
+  priority = false,
+  sizes,
+  class: className,
+  frameClass = '',
+} = Astro.props;
+
+const image = getPhoto(Astro.props.src);
+const { widths, formats, quality, style } = pictureProps({ width, height, position, sizes });
+---
+
+<div
+  class:list={['relative overflow-hidden bg-cream-200', frameClass, className]}
+  style={`aspect-ratio: ${width} / ${height};`}
+>
+  {image ? (
+    <Picture
+      src={image}
+      alt={alt}
+      widths={widths}
+      sizes={sizes ?? '(min-width: 1024px) 44vw, 92vw'}
+      formats={formats}
+      quality={quality}
+      loading={priority ? 'eager' : 'lazy'}
+      decoding={priority ? 'sync' : 'async'}
+      fetchpriority={priority ? 'high' : 'auto'}
+      class="h-full w-full object-cover"
+      style={style}
+    />
+  ) : (
+    <FigureGround class="absolute inset-0 h-full w-full" />
+  )}
+
+  {/* Подпись к фото: только когда есть реальный снимок */}
+  {image && (
+    <span class="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-ink-900/25 to-transparent" />
+  )}
+</div>

@@ -1,0 +1,81 @@
+name: Deploy to GitHub Pages
+
+# Пуш в master → сборка статического сайта → публикация на Pages.
+# Первый запуск вручную: Actions → Deploy to GitHub Pages → Run workflow.
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Не отменяем текущий деплой: иначе сайт может повиснуть на середине.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+env:
+  # Адрес сайта. По умолчанию — собственный домен.
+  # Для адреса GitHub Pages замените на https://itmagelab.github.io
+  # и BASE_PATH на /psy.yainna.ru
+  SITE_URL: ${{ vars.SITE_URL || 'https://psy.yainna.ru' }}
+  BASE_PATH: ${{ vars.BASE_PATH || '/' }}
+
+jobs:
+  build:
+    name: Сборка
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Получить код
+        uses: actions/checkout@v7
+
+      - name: Установить Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          cache: npm
+
+      - name: Установить зависимости
+        run: npm ci
+
+      - name: Типы и диагностика Astro
+        run: npm run check
+
+      - name: Сборка
+        run: npm run build
+        env:
+          SITE_URL: ${{ env.SITE_URL }}
+          BASE_PATH: ${{ env.BASE_PATH }}
+
+      - name: Добавить CNAME (если задан собственный домен)
+        if: ${{ secrets.CUSTOM_DOMAIN != '' }}
+        run: echo "${{ secrets.CUSTOM_DOMAIN }}" > dist/CNAME
+
+      - name: Загрузить артефакт
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: dist
+
+  deploy:
+    name: Публикация
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Настроить Pages
+        uses: actions/configure-pages@v6
+
+      - name: Опубликовать
+        id: deployment
+        uses: actions/deploy-pages@v5

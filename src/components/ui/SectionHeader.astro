@@ -1,0 +1,32 @@
+---
+/** Заголовок секции: надзаголовок, заголовок, необязательный лид. */
+interface Props {
+  eyebrow?: string;
+  title: string;
+  intro?: string;
+  align?: 'start' | 'center';
+  class?: string;
+  /** Идентификатор заголовка для aria-labelledby секции. */
+  as?: 'h2' | 'h3';
+  id?: string;
+}
+
+const {
+  eyebrow,
+  title,
+  intro,
+  align = 'start',
+  class: className = '',
+  as: Tag = 'h2',
+  id,
+} = Astro.props;
+---
+
+<header class:list={['max-w-[54rem]', align === 'center' && 'mx-auto text-center', className]}>
+  {eyebrow && <p class="eyebrow">{eyebrow}</p>}
+  <Tag id={id} class="mt-5 text-h2">
+    {title}
+  </Tag>
+  {intro && <p class="mt-5 text-lead text-pretty text-ink-500">{intro}</p>}
+  <slot />
+</header>

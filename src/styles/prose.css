@@ -1,0 +1,120 @@
+/* ==========================================================================
+   Продольный текст: «Обо мне», юридические документы
+   ========================================================================== */
+
+@layer components {
+  .prose-soft {
+    color: var(--color-ink-700);
+    font-size: var(--text-lead);
+    line-height: 1.62;
+    max-width: 62ch;
+    text-wrap: pretty;
+  }
+
+  .prose-soft > * + * {
+    margin-block-start: 1.15em;
+  }
+
+  .prose-soft strong {
+    color: var(--color-ink-900);
+    font-weight: 600;
+  }
+
+  .prose-soft em {
+    font-style: italic;
+  }
+
+  .prose-soft a {
+    color: var(--color-ink-900);
+    text-decoration: underline;
+    text-decoration-color: var(--color-clay-300);
+    text-decoration-thickness: 1.5px;
+    text-underline-offset: 0.25em;
+    transition: text-decoration-color 0.3s var(--ease-soft);
+  }
+
+  .prose-soft a:hover {
+    text-decoration-color: var(--color-clay-500);
+  }
+
+  .prose-soft h2,
+  .prose-soft h3 {
+    font-family: var(--font-display);
+    color: var(--color-ink-900);
+    font-weight: 500;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+  }
+
+  .prose-soft h2 {
+    font-size: var(--text-h3);
+    margin-block-start: 2.2em;
+  }
+
+  .prose-soft h3 {
+    font-size: var(--text-h4);
+    margin-block-start: 1.8em;
+  }
+
+  .prose-soft ul,
+  .prose-soft ol {
+    padding-inline-start: 1.15em;
+  }
+
+  .prose-soft ul {
+    list-style: none;
+    padding-inline-start: 0;
+  }
+
+  .prose-soft ul > li {
+    position: relative;
+    padding-inline-start: 1.4em;
+  }
+
+  .prose-soft ul > li + li {
+    margin-block-start: 0.6em;
+  }
+
+  .prose-soft ul > li::before {
+    content: '';
+    position: absolute;
+    inset-block-start: 0.72em;
+    inset-inline-start: 0.15em;
+    width: 0.4rem;
+    height: 0.4rem;
+    border-radius: 999px;
+    background: var(--color-clay-300);
+  }
+
+  .prose-soft ol {
+    list-style: decimal;
+  }
+
+  .prose-soft li::marker {
+    color: var(--color-clay-600);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .prose-soft blockquote {
+    border-inline-start: 2px solid var(--color-clay-300);
+    padding-inline-start: 1.25em;
+    font-family: var(--font-display);
+    font-size: var(--text-h4);
+    line-height: 1.4;
+    color: var(--color-ink-900);
+    font-style: normal;
+  }
+
+  .prose-soft hr {
+    border: 0;
+    border-block-start: 1px solid var(--color-cream-300);
+    margin-block: 2.5em;
+  }
+
+  /* Юридические страницы: спокойный размер и ширина для чтения */
+  .prose-legal {
+    max-width: 68ch;
+    font-size: var(--text-body);
+    line-height: 1.7;
+  }
+}

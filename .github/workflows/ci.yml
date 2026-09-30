@@ -1,0 +1,56 @@
+name: CI
+
+# Проверки на каждый push и pull request: типы, линтер, форматирование, сборка.
+# Совпадает с `npm run verify` + `npm run build` локально.
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Проверки и сборка
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Получить код
+        uses: actions/checkout@v7
+
+      - name: Установить Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          cache: npm
+
+      - name: Установить зависимости
+        run: npm ci
+
+      - name: Типы и диагностика Astro
+        run: npm run check
+
+      - name: ESLint
+        run: npm run lint
+
+      - name: Форматирование
+        run: npm run format:check
+
+      - name: Сборка
+        run: npm run build
+
+      - name: Артефакт сборки (для проверки на PR)
+        uses: actions/upload-artifact@v7
+        with:
+          name: dist-${{ github.run_number }}
+          path: dist
+          retention-days: 7
+          if-no-files-found: error

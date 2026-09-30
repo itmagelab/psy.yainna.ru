@@ -1,0 +1,32 @@
+---
+/** Подчёркивание «от руки» под акцентным словом в заголовке. */
+interface Props {
+  class?: string;
+}
+
+const { class: className = '' } = Astro.props;
+---
+
+<svg
+  class={className}
+  viewBox="0 0 320 18"
+  fill="none"
+  preserveAspectRatio="none"
+  aria-hidden="true"
+  focusable="false"
+>
+  <path
+    d="M3 12.5C48 6.2 96 3.4 143 4.2c47 .8 96 3.6 174 8.6"
+    stroke="var(--color-clay-500)"
+    stroke-width="2.5"
+    stroke-linecap="round"
+    opacity="0.55"
+  ></path>
+  <path
+    d="M10 15.4C56 10.6 104 8.2 150 9c46 .8 96 2.8 160 7"
+    stroke="var(--color-clay-500)"
+    stroke-width="1.5"
+    stroke-linecap="round"
+    opacity="0.3"
+  ></path>
+</svg>

@@ -1,0 +1,67 @@
+---
+import SectionHeader from '../ui/SectionHeader.astro';
+import Reveal from '../ui/Reveal.astro';
+import Icon from '../ui/Icon.astro';
+import type { icons } from '../ui/icons';
+import type { z } from 'astro/zod';
+import type { sectionSchema } from '../../schemas/sections';
+
+type Data = Extract<z.infer<typeof sectionSchema>, { kind: 'social' }>;
+
+interface Props {
+  data: Data;
+}
+
+const { data } = Astro.props;
+const titleId = 'social-title';
+
+const networkNames: Record<keyof typeof icons, string> = {
+  instagram: 'Instagram',
+  telegram: 'Telegram',
+  vk: 'ВКонтакте',
+  whatsapp: 'WhatsApp',
+  max: 'MAX',
+  email: 'Почта',
+};
+---
+
+<section id={data.anchor} class="section border-t border-cream-300" aria-labelledby={titleId}>
+  <div class="page">
+    <Reveal>
+      <SectionHeader eyebrow={data.eyebrow} title={data.title} id={titleId} class="max-w-[40rem]" />
+    </Reveal>
+
+    <Reveal class="mt-8" delay={60}>
+      <p class="max-w-[58ch] text-lead text-pretty text-ink-500">{data.text}</p>
+    </Reveal>
+
+    <ul class="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {data.links.map((link, index) => (
+        <Reveal as="li" delay={index * 70}>
+          <a
+            class="card group flex h-full items-start gap-4 no-underline"
+            href={link.url}
+            rel="noopener"
+            target="_blank"
+          >
+            <span
+              class="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-cream-200 text-ink-900 transition-colors duration-500 ease-soft group-hover:bg-clay-100 group-hover:text-clay-700"
+              aria-hidden="true"
+            >
+              <Icon name={link.network} size={20} />
+            </span>
+            <span>
+              <span class="block font-display text-h4 text-ink-900 transition-colors group-hover:text-clay-700">
+                {networkNames[link.network]}
+              </span>
+              {link.handle && (
+                <span class="mt-0.5 block text-small text-ink-500">{link.handle}</span>
+              )}
+              {link.note && <span class="mt-2 block text-small text-ink-500">{link.note}</span>}
+            </span>
+          </a>
+        </Reveal>
+      ))}
+    </ul>
+  </div>
+</section>

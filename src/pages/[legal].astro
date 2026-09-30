@@ -1,0 +1,62 @@
+---
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import { site } from '../data/site';
+
+/**
+ * Юридические страницы строятся из `src/content/legal/*.md`:
+ * имя файла = адрес страницы (privacy.md → /privacy/).
+ */
+export async function getStaticPaths() {
+  const entries = await getCollection('legal');
+  return entries.map((entry) => ({ params: { legal: entry.id }, props: { entry } }));
+}
+
+interface Props {
+  entry: CollectionEntry<'legal'>;
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+
+const nav = [
+  { label: 'Обо мне', href: '/#about' },
+  { label: 'Как проходит', href: '/#process' },
+  { label: 'Стоимость', href: '/#pricing' },
+  { label: 'Вопросы', href: '/#faq' },
+];
+
+const legal = [
+  { label: 'Политика конфиденциальности', href: '/privacy/' },
+  { label: 'Согласие на обработку персональных данных', href: '/consent/' },
+];
+---
+
+<Base
+  title={`${entry.data.title} — ${site.shortName}, ${site.role}`}
+  description={entry.data.description}
+  nav={nav}
+  legal={legal}
+>
+  <article class="section">
+    <div class="page">
+      <div class="mx-auto max-w-[52rem]">
+        <a class="link-soft text-small text-ink-500" href="/">
+          ← На главную
+        </a>
+
+        <header class="mt-8">
+          <p class="eyebrow">Правовая информация</p>
+          <h1 class="mt-5 text-h2">{entry.data.title}</h1>
+          <p class="mt-4 text-tiny text-ink-500">Редакция от {entry.data.updated}</p>
+        </header>
+
+        <div class="rule-soft my-10"></div>
+
+        <div class="prose-soft prose-legal">
+          <Content />
+        </div>
+      </div>
+    </div>
+  </article>
+</Base>

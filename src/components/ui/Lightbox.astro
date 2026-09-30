@@ -1,0 +1,101 @@
+---
+/** Просмотрщик документов на нативном <dialog> — без библиотек и без JS-фреймворков. */
+---
+
+<dialog class="lightbox" data-lightbox-dialog aria-label="Просмотр документа">
+  <form method="dialog" class="lightbox__backdrop">
+    <button class="lightbox__close" aria-label="Закрыть" data-lightbox-close>
+      <svg
+        viewBox="0 0 24 24"
+        width="20"
+        height="20"
+        fill="none"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <path
+          d="M6 6l12 12M18 6L6 18"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+        ></path>
+      </svg>
+    </button>
+  </form>
+  <figure class="lightbox__figure">
+    <img data-lightbox-image src="" alt="" width="1200" height="1600" />
+    <figcaption class="lightbox__caption" data-lightbox-caption></figcaption>
+  </figure>
+</dialog>
+
+<style>
+  .lightbox {
+    padding: 0;
+    border: 0;
+    max-inline-size: min(92vw, 60rem);
+    max-block-size: 90vh;
+    background: transparent;
+    overflow: visible;
+  }
+
+  .lightbox::backdrop {
+    background: oklch(0.265 0.018 255 / 0.72);
+    backdrop-filter: blur(4px);
+  }
+
+  .lightbox__backdrop {
+    display: block;
+    padding: 0;
+  }
+
+  .lightbox__close {
+    position: absolute;
+    inset-block-start: 0.75rem;
+    inset-inline-end: 0.75rem;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    inline-size: 2.5rem;
+    block-size: 2.5rem;
+    border-radius: 999px;
+    color: var(--color-ink-900);
+    background: var(--color-cream-50);
+    box-shadow: var(--shadow-soft);
+    transition:
+      transform 0.3s var(--ease-soft),
+      background-color 0.3s var(--ease-soft);
+  }
+
+  .lightbox__close:hover {
+    transform: rotate(90deg);
+    background: var(--color-clay-100);
+  }
+
+  .lightbox__figure {
+    margin: 0;
+    display: grid;
+    gap: 0.75rem;
+    justify-items: center;
+  }
+
+  .lightbox__figure img {
+    max-inline-size: 100%;
+    max-block-size: 82vh;
+    inline-size: auto;
+    border-radius: var(--radius-md);
+    background: var(--color-cream-100);
+    box-shadow: var(--shadow-ink);
+  }
+
+  .lightbox__caption {
+    color: var(--color-cream-100);
+    font-size: var(--text-small);
+    text-align: center;
+  }
+</style>
+
+<script>
+  import { initLightbox } from '../../scripts/lightbox';
+
+  initLightbox();
+</script>

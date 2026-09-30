@@ -1,0 +1,85 @@
+---
+import { site } from '../../data/site';
+import type { NavItem } from './Footer.astro';
+
+interface Props {
+  items: NavItem[];
+}
+
+const { items } = Astro.props;
+---
+
+<header
+  class="sticky top-0 z-50 border-b border-transparent transition-colors duration-500 data-[scrolled]:border-cream-300 data-[scrolled]:bg-cream-100/85 data-[scrolled]:backdrop-blur-xl"
+  data-site-header
+>
+  <div class="page">
+    <div class="flex h-[4.5rem] items-center justify-between gap-6">
+      <a class="group flex items-baseline gap-2.5 no-underline" href="/">
+        <span class="font-display text-h4 text-ink-900 transition-colors group-hover:text-clay-700">
+          {site.shortName}
+        </span>
+        <span class="hidden text-tiny text-ink-500 sm:inline">{site.tagline}</span>
+      </a>
+
+      <nav class="hidden items-center gap-7 lg:flex" aria-label="Основная навигация">
+        {items.map((item) => (
+          <a class="link-soft text-small" href={item.href}>
+            {item.label}
+          </a>
+        ))}
+      </nav>
+
+      <div class="flex items-center gap-3">
+        <a class="btn btn--sm hidden sm:inline-flex" href="#contact">
+          Записаться
+        </a>
+
+        <button
+          type="button"
+          class="btn btn--ghost btn--sm lg:hidden"
+          data-menu-toggle
+          aria-expanded="false"
+          aria-controls="mobile-menu"
+        >
+          <span data-menu-label>Меню</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Мобильное меню -->
+  <div
+    id="mobile-menu"
+    class="invisible absolute inset-x-0 top-full max-h-[calc(100dvh-4.5rem)] origin-top overflow-y-auto border-b border-cream-300 bg-cream-100/97 opacity-0 backdrop-blur-xl transition duration-300 ease-soft lg:hidden data-[open]:visible data-[open]:opacity-100"
+    data-menu-panel
+  >
+    <nav class="page py-6" aria-label="Мобильная навигация">
+      <ul class="space-y-1">
+        {items.map((item) => (
+          <li>
+            <a
+              class="block rounded-md px-2 py-3 text-h4 text-ink-900 transition-colors hover:bg-cream-200"
+              href={item.href}
+              data-menu-link
+            >
+              {item.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+      <a class="btn btn--block mt-5" href="#contact" data-menu-link>
+        Записаться на первую встречу
+      </a>
+      <p class="mt-5 text-tiny text-ink-500">
+        {site.address} · {site.onlineNote}
+      </p>
+    </nav>
+  </div>
+</header>
+
+<script>
+  import { initHeader } from '../../scripts/header';
+
+  initHeader();
+</script>

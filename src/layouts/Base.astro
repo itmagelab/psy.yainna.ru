@@ -1,0 +1,61 @@
+---
+import Seo from '../components/layout/Seo.astro';
+import Header from '../components/layout/Header.astro';
+import Footer from '../components/layout/Footer.astro';
+import type { NavItem, LegalLink } from '../components/layout/Footer.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  jsonLd?: object;
+  noindex?: boolean;
+  nav?: NavItem[];
+  legal?: LegalLink[];
+  price?: string;
+  format?: string;
+  note?: string;
+}
+
+const {
+  title,
+  description,
+  jsonLd,
+  noindex = false,
+  nav = [],
+  legal = [],
+  price,
+  format,
+  note,
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="ru" class="no-js">
+  <head>
+    <Seo title={title} description={description} jsonLd={jsonLd} noindex={noindex} />
+    <script is:inline>
+      // Снимаем no-js до первой отрисовки: весь контент виден и без JS.
+      document.documentElement.classList.remove('no-js');
+    </script>
+  </head>
+
+  <body>
+    <a class="skip-link" href="#main">
+      Перейти к содержанию
+    </a>
+
+    <Header items={nav} />
+
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+
+    <Footer items={nav} legal={legal} price={price} format={format} note={note} />
+
+    <script>
+      import { initReveal } from '../scripts/reveal';
+
+      initReveal();
+    </script>
+  </body>
+</html>

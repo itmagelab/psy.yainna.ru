@@ -1,0 +1,30 @@
+---
+import { icons, type IconName } from './icons';
+
+interface Props {
+  name: IconName;
+  /** Размер в CSS-пикселях (24 = сетка simple-icons). */
+  size?: number;
+  class?: string;
+  label?: string;
+}
+
+const { name, size = 22, class: className, label } = Astro.props;
+const icon = icons[name];
+---
+
+<svg
+  viewBox={icon.viewBox}
+  width={size}
+  height={size}
+  fill="currentColor"
+  class={className}
+  role={label ? 'img' : undefined}
+  aria-label={label}
+  aria-hidden={label ? undefined : 'true'}
+  focusable="false"
+>
+  {icon.paths.map((d) => (
+    <path d={d} />
+  ))}
+</svg>

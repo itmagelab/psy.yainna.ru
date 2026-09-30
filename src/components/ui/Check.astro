@@ -1,0 +1,27 @@
+---
+/** Галочка списка. Наследует цвет текста. */
+interface Props {
+  class?: string;
+  size?: number;
+}
+
+const { class: className = '', size = 20 } = Astro.props;
+---
+
+<svg
+  viewBox="0 0 20 20"
+  width={size}
+  height={size}
+  fill="none"
+  class={className}
+  aria-hidden="true"
+  focusable="false"
+>
+  <path
+    d="M4.5 10.5l3.2 3.2 7.8-7.8"
+    stroke="currentColor"
+    stroke-width="1.6"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  ></path>
+</svg>

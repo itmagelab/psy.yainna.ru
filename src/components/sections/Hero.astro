@@ -1,0 +1,91 @@
+---
+import Photo from '../ui/Photo.astro';
+import Reveal from '../ui/Reveal.astro';
+import Squiggle from '../ui/Squiggle.astro';
+import { site } from '../../data/site';
+import type { z } from 'astro/zod';
+import type { sectionSchema } from '../../schemas/sections';
+
+type Data = z.infer<typeof sectionSchema>;
+
+interface Props {
+  data: Extract<Data, { kind: 'hero' }>;
+}
+
+const { data } = Astro.props;
+---
+
+<section id={data.anchor} class="section pt-10 sm:pt-16 lg:pt-20" aria-labelledby="hero-title">
+  <div class="page">
+    <div class="grid items-center gap-12 lg:grid-cols-12 lg:gap-16">
+      <div class="lg:col-span-7">
+        {data.eyebrow && <p class="eyebrow reveal">{data.eyebrow}</p>}
+
+        <h1 id="hero-title" class="mt-6 text-h1 reveal" style="--reveal-delay: 60ms">
+          {data.title}
+          {data.titleAccent && (
+            <span class="relative mt-2 block text-[0.82em] text-clay-600">
+              {data.titleAccent}
+              <Squiggle class="absolute -bottom-4 left-0 h-3 w-[min(100%,20rem)]" />
+            </span>
+          )}
+        </h1>
+
+        <p
+          class="mt-9 max-w-[42ch] text-lead text-pretty text-ink-500 reveal"
+          style="--reveal-delay: 140ms"
+        >
+          {data.subtitle}
+        </p>
+
+        <div class="mt-10 flex flex-wrap items-center gap-3 reveal" style="--reveal-delay: 200ms">
+          <a class="btn" href={data.primaryCta.href}>
+            {data.primaryCta.label}
+          </a>
+          {data.secondaryCta && (
+            <a class="btn btn--ghost" href={data.secondaryCta.href}>
+              {data.secondaryCta.label}
+            </a>
+          )}
+        </div>
+
+        {data.facts.length > 0 && (
+          <ul
+            class="mt-12 flex flex-wrap items-center gap-x-7 gap-y-3 text-small text-ink-500 reveal"
+            style="--reveal-delay: 260ms"
+          >
+            {data.facts.map((fact) => (
+              <li class="flex items-center gap-2.5">
+                <span class="h-1.5 w-1.5 rounded-full bg-clay-500" aria-hidden="true" />
+                {fact}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      <Reveal as="div" class="relative lg:col-span-5" delay={120}>
+        <!-- Декор «фигура и фон» за фотографией: два смещённых круга -->
+        <span
+          class="pointer-events-none absolute -top-10 -left-10 -z-10 h-36 w-36 rounded-full bg-mist-200/80 blur-[2px]"
+          aria-hidden="true"
+        ></span>
+        <span
+          class="pointer-events-none absolute -top-6 -right-5 -z-10 h-20 w-20 rounded-full border border-clay-300/70"
+          aria-hidden="true"
+        ></span>
+
+        <Photo
+          {...data.photo}
+          priority
+          frameClass="rounded-xl shadow-lift"
+          sizes="(min-width: 1024px) 40vw, 92vw"
+        />
+
+        <p class="mt-4 text-tiny text-ink-500">
+          {site.shortName}, {site.city}
+        </p>
+      </Reveal>
+    </div>
+  </div>
+</section>

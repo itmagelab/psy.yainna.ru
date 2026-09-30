@@ -1,0 +1,25 @@
+---
+/**
+ * Появление блока при прокрутке.
+ *
+ * Разметка работает без JS (html.no-js снимает скрытие), скрипт
+ * `src/scripts/reveal.ts` только добавляет класс is-visible.
+ */
+interface Props {
+  as?: 'div' | 'section' | 'li' | 'p' | 'span' | 'article' | 'header';
+  class?: string;
+  /** Задержка в мс — для каскада внутри одной сетки. */
+  delay?: number;
+  id?: string;
+}
+
+const { as: Tag = 'div', class: className = '', delay = 0, id } = Astro.props;
+---
+
+<Tag
+  id={id}
+  class:list={['reveal', className]}
+  style={delay ? `--reveal-delay: ${delay}ms;` : undefined}
+>
+  <slot />
+</Tag>

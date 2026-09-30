@@ -1,0 +1,43 @@
+---
+import SectionHeader from '../ui/SectionHeader.astro';
+import Reveal from '../ui/Reveal.astro';
+import type { z } from 'astro/zod';
+import type { sectionSchema } from '../../schemas/sections';
+
+type Data = Extract<z.infer<typeof sectionSchema>, { kind: 'requests' }>;
+
+interface Props {
+  data: Data;
+}
+
+const { data } = Astro.props;
+const titleId = 'requests-title';
+---
+
+<section id={data.anchor} class="section border-t border-cream-300" aria-labelledby={titleId}>
+  <div class="page">
+    <Reveal>
+      <SectionHeader
+        eyebrow={data.eyebrow}
+        title={data.title}
+        intro={data.intro}
+        id={titleId}
+        class="max-w-[46rem]"
+      />
+    </Reveal>
+
+    <ul class="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {data.items.map((item, index) => (
+        <Reveal as="li" class="card flex h-full flex-col" delay={(index % 3) * 70}>
+          <p class="font-display text-h4 text-balance text-ink-900">{item.phrase}</p>
+          {item.note && <p class="mt-4 text-small text-ink-500">{item.note}</p>}
+          {item.tag && (
+            <p class="mt-auto pt-5">
+              <span class="chip chip--clay">{item.tag}</span>
+            </p>
+          )}
+        </Reveal>
+      ))}
+    </ul>
+  </div>
+</section>

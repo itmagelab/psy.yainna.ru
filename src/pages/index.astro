@@ -1,0 +1,65 @@
+---
+import { getCollection, type CollectionEntry } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import { sectionComponents } from '../components/sections';
+import { site } from '../data/site';
+import { formatPrice } from '../lib/format';
+import { buildGraph } from '../lib/schema';
+import type { NavItem, LegalLink } from '../components/layout/Footer.astro';
+
+const entries = await getCollection('sections');
+entries.sort((a, b) => a.data.order - b.data.order);
+
+/* Секция kind: footer не рендерится в потоке страницы — она наполняет подвал. */
+const footerEntry = entries.find((entry) => entry.data.kind === 'footer');
+const sections = entries.filter((entry) => entry.data.kind !== 'footer');
+
+const unknown = sections.filter(
+  (entry) => !(entry.data.kind in sectionComponents) || entry.data.kind === 'footer',
+);
+if (unknown.length > 0) {
+  throw new Error(
+    `Неизвестный kind секции: ${unknown.map((e) => `${e.id} (${e.data.kind})`).join(', ')}. ` +
+      `Добавьте компонент в src/components/sections/index.ts.`,
+  );
+}
+
+const nav: NavItem[] = sections
+  .filter((entry) => Boolean(entry.data.nav))
+  .map((entry) => ({ label: entry.data.nav as string, href: `#${entry.data.anchor}` }));
+
+const legal: LegalLink[] = footerEntry?.data.kind === 'footer' ? footerEntry.data.legal : [];
+
+const faq = sections.find((entry) => entry.data.kind === 'faq');
+const pricing = sections.find((entry) => entry.data.kind === 'pricing');
+
+const jsonLd = buildGraph({
+  siteUrl: Astro.site?.href ?? 'https://psy.yainna.ru/',
+  price: pricing?.data.kind === 'pricing' ? pricing.data.offers[0]?.price : undefined,
+  faq: faq?.data.kind === 'faq' ? faq.data.items : [],
+});
+
+const price = pricing?.data.kind === 'pricing' ? pricing.data.offers[0] : undefined;
+const priceLabel = price
+  ? `${formatPrice(price.price)} ${price.priceNote ?? ''}`.trim()
+  : undefined;
+const formatLabel = price
+  ? [price.format, price.duration, price.frequency].filter(Boolean).join(' · ')
+  : undefined;
+---
+
+<Base
+  title={site.seo.title}
+  description={site.seo.description}
+  jsonLd={jsonLd}
+  nav={nav}
+  legal={legal}
+  price={priceLabel}
+  format={formatLabel}
+  note={footerEntry?.data.kind === 'footer' ? footerEntry.data.note : undefined}
+>
+  {sections.map((entry: CollectionEntry<'sections'>) => {
+    const Component = sectionComponents[entry.data.kind as keyof typeof sectionComponents];
+    return <Component data={entry.data as never} entry={entry} />;
+  })}
+</Base>
