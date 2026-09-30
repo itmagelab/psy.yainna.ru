@@ -24,6 +24,10 @@ env:
   # и BASE_PATH на /psy.yainna.ru
   SITE_URL: ${{ vars.SITE_URL || 'https://psy.yainna.ru' }}
   BASE_PATH: ${{ vars.BASE_PATH || '/' }}
+  # Собственный домен для CNAME. Задаётся в настройках репозитория:
+  # Settings → Secrets and variables → Actions → Variables → CUSTOM_DOMAIN.
+  # Пустое значение — сайт публикуется по адресу GitHub Pages.
+  CUSTOM_DOMAIN: ${{ vars.CUSTOM_DOMAIN || '' }}
 
 jobs:
   build:
@@ -54,8 +58,8 @@ jobs:
           BASE_PATH: ${{ env.BASE_PATH }}
 
       - name: Добавить CNAME (если задан собственный домен)
-        if: ${{ secrets.CUSTOM_DOMAIN != '' }}
-        run: echo "${{ secrets.CUSTOM_DOMAIN }}" > dist/CNAME
+        if: ${{ env.CUSTOM_DOMAIN != '' }}
+        run: echo "$CUSTOM_DOMAIN" > dist/CNAME
 
       - name: Загрузить артефакт
         uses: actions/upload-pages-artifact@v5

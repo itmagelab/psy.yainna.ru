@@ -71,8 +71,9 @@ photo:
 Пуш в `master` запускает `.github/workflows/deploy.yml`: сборка → GitHub Pages.
 Полный запуск и проверка — в `.github/workflows/ci.yml`.
 
-Адрес сайта задаётся переменными `SITE_URL` и `BASE_PATH`
-в `astro.config.mjs`. По умолчанию — `https://psy.yainna.ru`.
+Адрес сайта задаётся переменными репозитория (Settings → Secrets and variables
+→ Actions → Variables): `SITE_URL`, `BASE_PATH`, `CUSTOM_DOMAIN`. Подробности —
+в `AGENTS.md`, раздел «Деплой».
 
 ## Документы
 

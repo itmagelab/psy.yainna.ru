@@ -163,12 +163,21 @@ npm run verify       # check + lint + format:check — перед коммито
 
 ## 11. Деплой
 
-`master` → GitHub Actions → GitHub Pages (`deploy.yml`). Сборка в CI проходит
-`astro check` и сборку. Адрес задаётся переменными `SITE_URL` и `BASE_PATH`
-в `astro.config.mjs` (по умолчанию — `https://psy.yainna.ru` и `/`).
+`master` → GitHub Actions → GitHub Pages (`.github/workflows/deploy.yml`).
+Перед сборкой прогоняются `astro check` и сама сборка.
 
-Чтобы переключиться на адрес GitHub Pages: задать в workflow
+Адрес сайта задаётся переменными репозитория (Settings → Secrets and variables
+→ Actions → **Variables**), а не файлами:
+
+| Переменная      | По умолчанию            | Назначение                                               |
+| --------------- | ----------------------- | -------------------------------------------------------- |
+| `SITE_URL`      | `https://psy.yainna.ru` | Абсолютный адрес для canonical, OG и sitemap             |
+| `BASE_PATH`     | `/`                     | `/` для домена, `/psy.yainna.ru` для адреса GitHub Pages |
+| `CUSTOM_DOMAIN` | —                       | Домен для `CNAME`; пусто — публикация на `*.github.io`   |
+
+Чтобы публиковать на адрес GitHub Pages, задайте
 `SITE_URL=https://itmagelab.github.io` и `BASE_PATH=/psy.yainna.ru`.
+Значения по умолчанию продублированы в `env` самого workflow — правьте их там.
 
 ## 12. Приёмка перед коммитом
 
