@@ -26,16 +26,17 @@ const trim = (url: string) => url.replace(/\/+$/, '');
 export function buildGraph({ siteUrl, baseUrl = '/', price, faq = [] }: GraphInput) {
   const origin = trim(siteUrl);
   const base = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
-  const image = new URL(site.seo.ogImage.replace(/^\//, ''), new URL(base, `${origin}/`)).href;
+  const page = new URL(base, `${origin}/`).href;
+  const image = new URL(site.seo.ogImage.replace(/^\//, ''), page).href;
 
   const nodes: object[] = [
     {
       '@type': 'Person',
-      '@id': `${origin}/#person`,
+      '@id': `${page}#person`,
       name: site.fullName,
       jobTitle: site.role,
       description: site.seo.description,
-      url: `${origin}/`,
+      url: page,
       image,
       sameAs: [site.socials.instagram, site.socials.telegram, site.socials.vk],
       knowsAbout: [
@@ -53,10 +54,10 @@ export function buildGraph({ siteUrl, baseUrl = '/', price, faq = [] }: GraphInp
     },
     {
       '@type': 'MedicalBusiness',
-      '@id': `${origin}/#practice`,
+      '@id': `${page}#practice`,
       name: site.role,
       description: site.seo.description,
-      url: `${origin}/`,
+      url: page,
       image,
       priceRange: price ? `${price} RUB` : undefined,
       availableLanguage: ['Russian'],
@@ -68,22 +69,22 @@ export function buildGraph({ siteUrl, baseUrl = '/', price, faq = [] }: GraphInp
         addressCountry: 'RU',
       },
       areaServed: { '@type': 'Country', name: 'Россия' },
-      founder: { '@id': `${origin}/#person` },
+      founder: { '@id': `${page}#person` },
     },
     {
       '@type': 'WebSite',
-      '@id': `${origin}/#website`,
-      url: `${origin}/`,
+      '@id': `${page}#website`,
+      url: page,
       name: site.seo.title,
       inLanguage: site.locale,
-      publisher: { '@id': `${origin}/#person` },
+      publisher: { '@id': `${page}#person` },
     },
   ];
 
   if (faq.length > 0) {
     nodes.push({
       '@type': 'FAQPage',
-      '@id': `${origin}/#faq`,
+      '@id': `${page}#faq`,
       mainEntity: faq.map((item) => ({
         '@type': 'Question',
         name: item.q,
