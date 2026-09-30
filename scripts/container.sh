@@ -54,14 +54,25 @@ cmd_login() {
 
 cmd_push() {
 	cmd_login
-	cmd_build
-	echo "▸ Публикация ${IMAGE}:${TAG}"
-	podman push "${IMAGE}:${TAG}"
+	echo "▸ Сборка и отправка linux/amd64"
+	podman build "${build_args[@]}" --platform linux/amd64 \
+		--tag "${IMAGE}:amd64" -f Containerfile .
+	podman push "${IMAGE}:amd64"
+
+	echo "▸ Сборка и отправка linux/arm64"
+	podman build "${build_args[@]}" --platform linux/arm64 \
+		--tag "${IMAGE}:arm64" -f Containerfile .
+	podman push "${IMAGE}:arm64"
+
+	echo "▸ Сборка манифеста ${IMAGE}:${TAG}"
+	podman manifest rm "${IMAGE}:${TAG}" >/dev/null 2>&1 || true
+	podman manifest create "${IMAGE}:${TAG}" "${IMAGE}:amd64" "${IMAGE}:arm64"
+	podman manifest push --all "${IMAGE}:${TAG}" "docker://${IMAGE}:${TAG}"
+
 	echo "✓ Образ в Packages: https://github.com/orgs/itmagelab/packages/container/package/${IMAGE##*/}"
 	echo
-	echo "  Обратите внимание: локально собирается только платформа вашей"
-	echo "  машины. Мультиплатформенный образ (amd64 + arm64) публикует"
-	echo "  CI: .github/workflows/container.yml."
+	echo "  Сборка arm64 на машине с amd64 требует binfmt (qemu-user-static)."
+	echo "  Обычно проще публиковать из CI: .github/workflows/container.yml"
 }
 
 cmd_run() {
@@ -84,8 +95,9 @@ cmd_run() {
 }
 
 cmd_check() {
-	echo "▸ Проверка ${IMAGE}:${TAG}"
-	podman run --rm --entrypoint sh "${IMAGE}:${TAG}" -c '
+	local tag="${1:-$TAG}"
+	echo "▸ Проверка ${IMAGE}:${tag}"
+	podman run --rm --entrypoint sh "${IMAGE}:${tag}" -c '
 		set -e
 		test -f /srv/index.html
 		test -f /srv/og.png
@@ -106,7 +118,7 @@ build) cmd_build ;;
 run) cmd_run ;;
 login) cmd_login ;;
 push) cmd_push ;;
-check) cmd_check ;;
+check) cmd_check "${2:-}" ;;
 shell) cmd_shell ;;
 logs) cmd_logs ;;
 *)

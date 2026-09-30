@@ -55,14 +55,15 @@ jobs:
           fi
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
 
-      # podman build --platform a,b не превращает образ в multi-arch:
-      # в реестр уезжает только текущая платформа. Поэтому платформы
-      # собираются по отдельности, а манифест собирается вручную.
-      #
-      # ВАЖНО: промежуточные образы получают локальные имена без префикса
-      # реестра. С именем вида ghcr.io/... команда podman manifest create
-      # пытается читать образ из реестра и падает с «manifest unknown».
-      - name: Сборка образов
+      # Мультиплатформенный образ требует ручной работы:
+      #   1. podman build --platform a,b собирает обе платформы, но в реестр
+      #      отправляет только текущую;
+      #   2. podman manifest create читает исходные образы ИЗ РЕЕСТРА,
+      #      поэтому каждую платформу нужно сначала запушить отдельно —
+      #      иначе «manifest unknown»;
+      #   3. манифест собирается из запушенных образов и публикуется с --all.
+      # Проверено на локальном registry:2.
+      - name: Сборка и отправка образов по платформам
         run: |
           set -euo pipefail
           for arch in amd64 arm64; do
@@ -74,22 +75,24 @@ jobs:
               --build-arg "BASE_PATH=/" \
               --label "org.opencontainers.image.version=${{ steps.meta.outputs.version }}" \
               --label "org.opencontainers.image.revision=${{ github.sha }}" \
-              --tag "psy-build-${arch}:local" \
+              --tag "${IMAGE}:${arch}" \
               -f Containerfile .
+
+            echo "▸ Отправка linux/${arch}"
+            podman push "${IMAGE}:${arch}"
           done
 
-      # Публикуем всегда, кроме pull_request: там образ и не нужен.
-      - name: Публикация в Packages
+      - name: Сборка манифеста
         if: github.event_name != 'pull_request'
         run: |
           set -euo pipefail
           publish() {
             local tag="$1"
-            podman manifest rm "docker://${IMAGE}:${tag}" >/dev/null 2>&1 || true
             podman manifest rm "${IMAGE}:${tag}" >/dev/null 2>&1 || true
             podman manifest create "${IMAGE}:${tag}" \
-              "psy-build-amd64:local" "psy-build-arm64:local"
+              "${IMAGE}:amd64" "${IMAGE}:arm64"
             podman manifest push --all "${IMAGE}:${tag}" "docker://${IMAGE}:${tag}"
+            echo "▸ Опубликован ${IMAGE}:${tag}"
           }
 
           publish "${{ steps.meta.outputs.tag }}"
