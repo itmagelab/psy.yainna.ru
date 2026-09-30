@@ -58,6 +58,10 @@ jobs:
       # podman build --platform a,b не превращает образ в multi-arch:
       # в реестр уезжает только текущая платформа. Поэтому платформы
       # собираются по отдельности, а манифест собирается вручную.
+      #
+      # ВАЖНО: промежуточные образы получают локальные имена без префикса
+      # реестра. С именем вида ghcr.io/... команда podman manifest create
+      # пытается читать образ из реестра и падает с «manifest unknown».
       - name: Сборка образов
         run: |
           set -euo pipefail
@@ -70,7 +74,7 @@ jobs:
               --build-arg "BASE_PATH=/" \
               --label "org.opencontainers.image.version=${{ steps.meta.outputs.version }}" \
               --label "org.opencontainers.image.revision=${{ github.sha }}" \
-              --tag "${IMAGE}:build-${arch}" \
+              --tag "psy-build-${arch}:local" \
               -f Containerfile .
           done
 
@@ -84,7 +88,7 @@ jobs:
             podman manifest rm "docker://${IMAGE}:${tag}" >/dev/null 2>&1 || true
             podman manifest rm "${IMAGE}:${tag}" >/dev/null 2>&1 || true
             podman manifest create "${IMAGE}:${tag}" \
-              "${IMAGE}:build-amd64" "${IMAGE}:build-arm64"
+              "psy-build-amd64:local" "psy-build-arm64:local"
             podman manifest push --all "${IMAGE}:${tag}" "docker://${IMAGE}:${tag}"
           }
 
