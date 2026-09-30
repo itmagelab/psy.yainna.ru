@@ -41,12 +41,13 @@ npm run lint         # eslint
 npm run format       # prettier --write
 npm run verify       # check + lint + format:check — перед коммитом
 
-# Контейнер
-./scripts/container.sh build   # собрать образ
-./scripts/container.sh run     # собрать и запустить локально
-./scripts/container.sh check   # проверить, что в образе есть сайт
-./scripts/container.sh push    # отправить образ в GitHub Packages
-podman-compose up -d           # запуск на сервере из compose.yaml
+# Контейнер (рецепты в justfile, полный список — just --list)
+just build   # собрать образ
+just run     # собрать и запустить локально на :8088
+just check   # проверить, что в образе есть собранный сайт
+just push    # отправить образ в GitHub Packages
+just down    # остановить и удалить контейнер
+podman-compose up -d   # запуск на сервере из compose.yaml
 ```
 
 ## 4. Где что править
@@ -178,10 +179,13 @@ podman-compose up -d           # запуск на сервере из compose.y
 и готовые файлы. Сборка двухэтапная — `Containerfile`.
 
 ```bash
-./scripts/container.sh build   # локальный образ
-./scripts/container.sh run     # запуск на :8080
-./scripts/container.sh check   # проверка содержимого образа
+just build   # локальный образ
+just run     # запуск на :8088
+just check   # проверка содержимого образа
 ```
+
+Управление контейнером живёт в `justfile` — это пять рецептов, отдельных
+скриптов с подкомандами здесь нет: сайт статический, управлять им нечем.
 
 Правила, которые нельзя нарушать:
 
@@ -238,7 +242,7 @@ npm run build    # сборка должна быть зелёной
 Если менялись `Containerfile`, `deploy/caddy/Caddyfile` или `compose.yaml`:
 
 ```bash
-./scripts/container.sh run     # и проверить curl -I http://localhost:8080/
+just run     # и проверить http://localhost:8088/
 ```
 
 ## 14. TODO перед публикацией

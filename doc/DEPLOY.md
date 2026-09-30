@@ -7,19 +7,16 @@
   попадает чистая статика с Caddy.
 - **`deploy/caddy/Caddyfile`** — раздача, кеширование, заголовки, 404.
 - **`compose.yaml`** — запуск на сервере.
-- **`scripts/container.sh`** — сборка, запуск, публикация образа.
+- **`justfile`** — пять рецептов: build, run, push, check, down.
 
 ---
 
 ## 1. Быстрый старт
 
 ```bash
-# Собрать и запустить локально
-./scripts/container.sh run
-curl -I http://localhost:8080/healthz
-
-# Остановить
-podman rm -f psy
+just run     # собрать и запустить на :8088
+just --list  # все рецепты
+just down    # остановить
 ```
 
 Локально Caddy выпускает сертификат для `localhost` сам, внешние проверки
@@ -157,7 +154,7 @@ linux/amd64,linux/arm64` создаёт в реестре запись толь�
 
 ```bash
 gh auth refresh -h github.com -s write:packages
-./scripts/container.sh push
+just push
 ```
 
 ## 7. Что где настраивается

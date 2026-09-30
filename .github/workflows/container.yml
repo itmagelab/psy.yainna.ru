@@ -102,10 +102,13 @@ jobs:
           fi
 
       # Страховка: если образ собрался, но не запускается, деплой не должен
-      # выглядеть зелёным.
+      # выглядеть зелёным. Рецепт check — тот же, что и у человека локально.
+      - name: Установить just
+        uses: taiki-e/install-action@just
+
       - name: Проверка образа
         if: github.event_name != 'pull_request'
-        run: ./scripts/container.sh check "${{ steps.meta.outputs.tag }}"
+        run: just check "${{ steps.meta.outputs.tag }}"
 
       - name: Отчёт
         if: always()
