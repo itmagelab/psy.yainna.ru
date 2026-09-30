@@ -21,5 +21,3 @@ public/apple-touch-icon.png
 doc/DEPLOY.md
 README.md
 AGENTS.md
-justfile
-compose.yaml

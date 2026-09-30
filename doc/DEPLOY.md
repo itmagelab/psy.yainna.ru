@@ -7,7 +7,7 @@
   попадает чистая статика с Caddy.
 - **`deploy/caddy/Caddyfile`** — раздача, кеширование, заголовки, 404.
 - **`compose.yaml`** — запуск на сервере.
-- **`justfile`** — пять рецептов: build, run, push, check, down.
+- **`justfile`** — запуск и остановка контейнера.
 
 ---
 
@@ -15,8 +15,7 @@
 
 ```bash
 just run     # собрать и запустить на :8088
-just --list  # все рецепты
-just down    # остановить
+just stop    # остановить
 ```
 
 Локально Caddy выпускает сертификат для `localhost` сам, внешние проверки
@@ -153,8 +152,8 @@ linux/amd64,linux/arm64` создаёт в реестре запись толь�
 Локальная публикация (нужен токен со scope `write:packages`):
 
 ```bash
-gh auth refresh -h github.com -s write:packages
-just push
+podman build -t ghcr.io/itmagelab/psy.yainna.ru:latest .
+podman push ghcr.io/itmagelab/psy.yainna.ru:latest
 ```
 
 ## 7. Что где настраивается

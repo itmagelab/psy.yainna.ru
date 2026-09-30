@@ -41,13 +41,10 @@ npm run lint         # eslint
 npm run format       # prettier --write
 npm run verify       # check + lint + format:check — перед коммитом
 
-# Контейнер (рецепты в justfile, полный список — just --list)
-just build   # собрать образ
-just run     # собрать и запустить локально на :8088
-just check   # проверить, что в образе есть собранный сайт
-just push    # отправить образ в GitHub Packages
-just down    # остановить и удалить контейнер
-podman-compose up -d   # запуск на сервере из compose.yaml
+# Контейнер
+just run            # поднять на :8088
+just stop           # остановить
+podman-compose up -d   # запуск на сервере
 ```
 
 ## 4. Где что править
@@ -179,13 +176,12 @@ podman-compose up -d   # запуск на сервере из compose.yaml
 и готовые файлы. Сборка двухэтапная — `Containerfile`.
 
 ```bash
-just build   # локальный образ
-just run     # запуск на :8088
-just check   # проверка содержимого образа
+just run     # локальный запуск на :8088
+just stop    # остановить
 ```
 
-Управление контейнером живёт в `justfile` — это пять рецептов, отдельных
-скриптов с подкомандами здесь нет: сайт статический, управлять им нечем.
+В образе только Caddy и собранный сайт: ни Node, ни исходников, ни
+сборочных файлов. В `justfile` — две команды для оператора.
 
 Правила, которые нельзя нарушать:
 
