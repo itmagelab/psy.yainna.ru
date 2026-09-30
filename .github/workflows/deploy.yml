@@ -1,7 +1,8 @@
 name: Deploy to GitHub Pages
 
 # Пуш в master → сборка статического сайта → публикация на Pages.
-# Первый запуск вручную: Actions → Deploy to GitHub Pages → Run workflow.
+# Адрес и базовый путь вычисляются автоматически, вручную ничего задавать
+# не нужно: задан только домен через переменную CUSTOM_DOMAIN.
 
 on:
   push:
@@ -13,20 +14,15 @@ permissions:
   pages: write
   id-token: write
 
-# Не отменяем текущий деплой: иначе сайт может повиснуть на середине.
+# Не отменяем текущий деплой: иначе сайт может остаться на середине.
 concurrency:
   group: pages
   cancel-in-progress: false
 
 env:
-  # Адрес сайта. По умолчанию — собственный домен.
-  # Для адреса GitHub Pages замените на https://itmagelab.github.io
-  # и BASE_PATH на /psy.yainna.ru
-  SITE_URL: ${{ vars.SITE_URL || 'https://psy.yainna.ru' }}
-  BASE_PATH: ${{ vars.BASE_PATH || '/' }}
-  # Собственный домен для CNAME. Задаётся в настройках репозитория:
+  # Собственный домен. Задаётся в настройках репозитория:
   # Settings → Secrets and variables → Actions → Variables → CUSTOM_DOMAIN.
-  # Пустое значение — сайт публикуется по адресу GitHub Pages.
+  # Пока переменная пустая, сайт публикуется на itmagelab.github.io/psy.yainna.ru.
   CUSTOM_DOMAIN: ${{ vars.CUSTOM_DOMAIN || '' }}
 
 jobs:
@@ -51,11 +47,33 @@ jobs:
       - name: Типы и диагностика Astro
         run: npm run check
 
+      # GitHub Pages отдаёт проект по адресу <владелец>.github.io/<репозиторий>,
+      # поэтому базовый путь должен совпадать с адресом публикации, иначе
+      # не найдутся стили, шрифты и картинки.
+      - name: Определить адрес и базовый путь
+        id: config
+        env:
+          OWNER: ${{ github.repository_owner }}
+          REPO: ${{ github.event.repository.name }}
+        run: |
+          if [ -n "$CUSTOM_DOMAIN" ]; then
+            echo "site=https://$CUSTOM_DOMAIN" >> "$GITHUB_OUTPUT"
+            echo "base=/" >> "$GITHUB_OUTPUT"
+          elif [ "$REPO" = "$OWNER.github.io" ]; then
+            # сайт пользователя или организации: без подпути
+            echo "site=https://$OWNER.github.io" >> "$GITHUB_OUTPUT"
+            echo "base=/" >> "$GITHUB_OUTPUT"
+          else
+            echo "site=https://$OWNER.github.io" >> "$GITHUB_OUTPUT"
+            echo "base=/$REPO" >> "$GITHUB_OUTPUT"
+          fi
+          echo "Адрес: ${{ steps.config.outputs.site }}, базовый путь: ${{ steps.config.outputs.base }}"
+
       - name: Сборка
         run: npm run build
         env:
-          SITE_URL: ${{ env.SITE_URL }}
-          BASE_PATH: ${{ env.BASE_PATH }}
+          SITE_URL: ${{ steps.config.outputs.site }}
+          BASE_PATH: ${{ steps.config.outputs.base }}
 
       - name: Добавить CNAME (если задан собственный домен)
         if: ${{ env.CUSTOM_DOMAIN != '' }}

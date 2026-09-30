@@ -71,9 +71,10 @@ photo:
 Пуш в `master` запускает `.github/workflows/deploy.yml`: сборка → GitHub Pages.
 Полный запуск и проверка — в `.github/workflows/ci.yml`.
 
-Адрес сайта задаётся переменными репозитория (Settings → Secrets and variables
-→ Actions → Variables): `SITE_URL`, `BASE_PATH`, `CUSTOM_DOMAIN`. Подробности —
-в `AGENTS.md`, раздел «Деплой».
+Workflow сам определяет адрес публикации. Единственная ручная настройка —
+переменная репозитория `CUSTOM_DOMAIN` (Settings → Secrets and variables →
+Actions → Variables): как только она задана и домен направлен на GitHub Pages,
+следующий деплой соберёт сайт под этот домен. Подробности — в `AGENTS.md`.
 
 ## Документы
 
