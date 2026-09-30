@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import { site } from '../data/site';
+import { homeHref, withSection } from '../lib/base';
 
 const nav = [
   { label: 'Обо мне', href: '/#about' },
@@ -30,10 +31,10 @@ const nav = [
           они стоят и как записаться.
         </p>
         <div class="mt-10 flex flex-wrap justify-center gap-3">
-          <a class="btn" href="/">
+          <a class="btn" href={homeHref}>
             На главную
           </a>
-          <a class="btn btn--ghost" href="/#contact">
+          <a class="btn btn--ghost" href={withSection('contact')}>
             Записаться на встречу
           </a>
         </div>

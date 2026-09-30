@@ -1,5 +1,6 @@
 ---
 import { site } from '../../data/site';
+import { internalHref } from '../../lib/base';
 
 export interface NavItem {
   label: string;
@@ -88,7 +89,7 @@ const year = new Date().getFullYear();
           <ul class="mt-6 space-y-2 text-tiny text-ink-500">
             {legal.map((link) => (
               <li>
-                <a class="link-soft" href={link.href}>
+                <a class="link-soft" href={internalHref(link.href)}>
                   {link.label}
                 </a>
               </li>

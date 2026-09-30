@@ -2,6 +2,7 @@
 import { getCollection, render, type CollectionEntry } from 'astro:content';
 import Base from '../layouts/Base.astro';
 import { site } from '../data/site';
+import { homeHref, withBase, withSection } from '../lib/base';
 
 /**
  * Юридические страницы строятся из `src/content/legal/*.md`:
@@ -20,15 +21,15 @@ const { entry } = Astro.props;
 const { Content } = await render(entry);
 
 const nav = [
-  { label: 'Обо мне', href: '/#about' },
-  { label: 'Как проходит', href: '/#process' },
-  { label: 'Стоимость', href: '/#pricing' },
-  { label: 'Вопросы', href: '/#faq' },
+  { label: 'Обо мне', href: withSection('about') },
+  { label: 'Как проходит', href: withSection('process') },
+  { label: 'Стоимость', href: withSection('pricing') },
+  { label: 'Вопросы', href: withSection('faq') },
 ];
 
 const legal = [
-  { label: 'Политика конфиденциальности', href: '/privacy/' },
-  { label: 'Согласие на обработку персональных данных', href: '/consent/' },
+  { label: 'Политика конфиденциальности', href: withBase('privacy/') },
+  { label: 'Согласие на обработку персональных данных', href: withBase('consent/') },
 ];
 ---
 
@@ -41,7 +42,7 @@ const legal = [
   <article class="section">
     <div class="page">
       <div class="mx-auto max-w-[52rem]">
-        <a class="link-soft text-small text-ink-500" href="/">
+        <a class="link-soft text-small text-ink-500" href={homeHref}>
           ← На главную
         </a>
 

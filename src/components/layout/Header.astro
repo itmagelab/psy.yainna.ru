@@ -1,5 +1,6 @@
 ---
 import { site } from '../../data/site';
+import { homeHref } from '../../lib/base';
 import type { NavItem } from './Footer.astro';
 
 interface Props {
@@ -15,7 +16,7 @@ const { items } = Astro.props;
 >
   <div class="page">
     <div class="flex h-[4.5rem] items-center justify-between gap-6">
-      <a class="group flex items-baseline gap-2.5 no-underline" href="/">
+      <a class="group flex items-baseline gap-2.5 no-underline" href={homeHref}>
         <span class="font-display text-h4 text-ink-900 transition-colors group-hover:text-clay-700">
           {site.shortName}
         </span>

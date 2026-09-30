@@ -2,6 +2,7 @@
 import Reveal from '../ui/Reveal.astro';
 import Icon from '../ui/Icon.astro';
 import { messengerLinks } from '../../lib/links';
+import { internalHref } from '../../lib/base';
 import type { z } from 'astro/zod';
 import type { sectionSchema } from '../../schemas/sections';
 
@@ -183,7 +184,7 @@ const defaultMethod = data.methods[0]?.network ?? 'telegram';
                   {index > 0 && ' '}
                   <a
                     class="text-ink-900 underline decoration-clay-300 decoration-1 underline-offset-4 transition-colors hover:decoration-clay-600"
-                    href={link.href}
+                    href={internalHref(link.href)}
                     target="_blank"
                     rel="noopener"
                   >
