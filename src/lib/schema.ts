@@ -15,14 +15,18 @@ export interface GraphInput {
   siteUrl: string;
   /** Цена первой сессии — попадает в priceRange. */
   price?: number;
+  /** Базовый путь публикации: '/' или '/psy.yainna.ru/'. */
+  baseUrl?: string;
   /** Вопросы и ответы из секции kind: faq. */
   faq?: { q: string; a: string }[];
 }
 
 const trim = (url: string) => url.replace(/\/+$/, '');
 
-export function buildGraph({ siteUrl, price, faq = [] }: GraphInput) {
+export function buildGraph({ siteUrl, baseUrl = '/', price, faq = [] }: GraphInput) {
   const origin = trim(siteUrl);
+  const base = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
+  const image = new URL(site.seo.ogImage.replace(/^\//, ''), new URL(base, `${origin}/`)).href;
 
   const nodes: object[] = [
     {
@@ -32,7 +36,7 @@ export function buildGraph({ siteUrl, price, faq = [] }: GraphInput) {
       jobTitle: site.role,
       description: site.seo.description,
       url: `${origin}/`,
-      image: `${origin}${site.seo.ogImage}`,
+      image,
       sameAs: [site.socials.instagram, site.socials.telegram, site.socials.vk],
       knowsAbout: [
         'Гештальт-подход',
@@ -53,7 +57,7 @@ export function buildGraph({ siteUrl, price, faq = [] }: GraphInput) {
       name: site.role,
       description: site.seo.description,
       url: `${origin}/`,
-      image: `${origin}${site.seo.ogImage}`,
+      image,
       priceRange: price ? `${price} RUB` : undefined,
       availableLanguage: ['Russian'],
       medicalSpecialty: 'Psychiatric',
