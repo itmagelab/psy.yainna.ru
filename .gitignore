@@ -5,6 +5,10 @@ node_modules/
 dist/
 .astro/
 
+# original photos uploaded for processing
+/Images/
+/images/
+
 # generated (собираются скриптом scripts/og.mjs)
 public/og.png
 public/apple-touch-icon.png

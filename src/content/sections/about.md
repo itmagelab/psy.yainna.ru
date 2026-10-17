@@ -6,7 +6,7 @@ nav: Обо мне
 eyebrow: Обо мне
 title: Меня зовут Инна. Гештальт-психотерапевт
 photo:
-  # TODO: заменить на живую, неформальную фотографию (см. src/assets/photos/README.md)
+  # Портретное фото хранится в src/assets/photos/ и оптимизируется при сборке.
   src: portrait-about.jpg
   alt: Портрет Инны Семеновой
   width: 1200
