@@ -10,15 +10,11 @@ text: >-
   что связано с отношениями, психологией и жизнью.
 links:
   - network: instagram
-    url: https://instagram.com/anna_psy
-    handle: '@anna_psy'
+    url: https://www.instagram.com/inna.maslinna?vrfl=MTkzcHBrd3lubzF1eg==
+    handle: '@inna.maslinna'
     note: Короткие посты и личные наблюдения
   - network: telegram
-    url: https://t.me/anna_psy
-    handle: '@anna_psy'
+    url: https://t.me/yainna_semenova
+    handle: '@yainna_semenova'
     note: Мысли длиннее и анонсы встреч
-  - network: vk
-    url: https://vk.com/anna_psy
-    handle: 'Анна Волкова'
-    note: Статьи и записи о психологии отношений
 ---

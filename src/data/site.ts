@@ -14,10 +14,8 @@ import type { Site } from '../schemas/site';
    ========================================================================== */
 
 const raw = {
-  // TODO: реальное имя
-  shortName: 'Анна',
-  // TODO: реальные имя и фамилия
-  fullName: 'Анна Волкова',
+  shortName: 'Инна',
+  fullName: 'Инна Семенова',
 
   role: 'Психотерапевт в гештальт-подходе',
   tagline: 'Отношения с собой и с другими',
@@ -28,35 +26,35 @@ const raw = {
   onlineNote: 'Онлайн-сессии — из любой точки',
 
   contacts: {
-    // TODO: username в Telegram без символа @, например «anna_psy»
-    telegram: 'anna_psy',
+    // Username в Telegram без символа @.
+    telegram: 'yainna_semenova',
     // TODO: номер телефона для WhatsApp: только цифры, без + и пробелов
-    whatsapp: '79000000000',
+    whatsapp: '79618519801',
     // TODO: ссылка на профиль в мессенджере MAX
-    max: 'https://max.ru/',
+    max: 'https://max.ru/+79618519801',
     // TODO: почта для запасного канала связи
-    email: 'hello@example.com',
+    email: 'inna.maslinna@yandex.ru',
     // TODO: телефон для звонков (необязательно)
-    phone: '+7 900 000-00-00',
+    phone: '+7 961 851-98-01',
   },
 
   socials: {
     // TODO: реальные адреса профилей
-    instagram: 'https://instagram.com/anna_psy',
-    telegram: 'https://t.me/anna_psy',
+    instagram: 'https://www.instagram.com/inna.maslinna?vrfl=MTkzcHBrd3lubzF1eg==',
+    telegram: 'https://t.me/yainna_semenova',
     vk: 'https://vk.com/anna_psy',
   },
 
   requisites: {
     // TODO: ФИО, ИНН и адрес — из выписки ЕГРЮЛ/ЕГРИП
-    fullName: 'Волкова Анна Владимировна',
+    fullName: 'Инна Семенова',
     inn: '000000000000',
     address: 'Сочи, Хоста, ул. Ялтинская',
-    email: 'hello@example.com',
+    email: 'inna.maslinna@yandex.ru',
   },
 
   seo: {
-    title: 'Анна Волкова — психотерапевт в гештальт-подходе, Сочи и онлайн',
+    title: 'Инна Семенова — психотерапевт в гештальт-подходе, Сочи и онлайн',
     description:
       'Индивидуальная психотерапия в гештальт-подходе: отношения, кризисы, тревога, понимание себя. 50 минут раз в неделю, онлайн и очно в Сочи.',
     ogImage: '/og.png',
