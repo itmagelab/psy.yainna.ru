@@ -5,7 +5,7 @@ const names: Record<Messenger, string> = {
   telegram: 'Telegram',
   whatsapp: 'WhatsApp',
   max: 'MAX',
-  email: 'почте',
+  email: 'почту',
 };
 
 /**
