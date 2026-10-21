@@ -63,7 +63,7 @@ podman-compose up -d   # запуск на сервере
 | Вопросы и ответы (FAQ)                                                | `src/content/sections/faq.md`                                     |
 | Ссылки на соцсети                                                     | `src/content/sections/social.md`                                  |
 | Блок записи: тексты, мессенджеры, согласие                            | `src/content/sections/contact.md`                                 |
-| Подпись и юр. ссылки в подвале                                        | `src/content/sections/footer.md`                                  |
+| Подпись, юр. ссылки и плашка в подвале                                | `src/content/sections/footer.md`                                  |
 | Политика конфиденциальности                                           | `src/content/legal/privacy.md`                                    |
 | Согласие на обработку ПДн                                             | `src/content/legal/consent.md`                                    |
 | Фотографии                                                            | `src/assets/photos/` (инструкция — `src/assets/photos/README.md`) |

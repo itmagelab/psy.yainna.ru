@@ -304,6 +304,29 @@
     color: var(--color-clay-700);
   }
 
+  /* --- Плашка внизу страницы -------------------------------------------- */
+  /* Спокойная «табличка» по ширине текста: тёплая подложка и тонкая граница
+     вместо обводки. Текст ink-700 на clay-100 держит контраст выше 4.5:1. */
+  .credit-plate {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: center;
+    gap: 0.4rem 0.6rem;
+    inline-size: fit-content;
+    max-inline-size: 100%;
+    margin-block-start: clamp(1.5rem, 3.5vw, 2.25rem);
+    margin-inline: auto;
+    padding: 0.7rem 1.1rem;
+    border: 1px solid color-mix(in oklab, var(--color-clay-300) 55%, transparent);
+    border-radius: var(--radius-md);
+    background-color: color-mix(in oklab, var(--color-clay-100) 70%, transparent);
+    color: var(--color-ink-700);
+    font-size: var(--text-small);
+    text-align: center;
+    text-wrap: pretty;
+  }
+
   /* --- Разделительная линия «фигура и фон» ------------------------------ */
 
   .rule-soft {

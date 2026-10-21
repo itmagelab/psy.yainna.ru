@@ -277,6 +277,18 @@ const footerSchema = z.object({
       }),
     )
     .default([]),
+  /**
+   * Плашка в самом низу страницы: короткая строка вроде «Сайт сделан
+   * с помощью …» со ссылкой на сайт инструмента. Живёт в схеме, а не
+   * в разметке, — формулировку и адрес можно поменять без правки компонента.
+   */
+  credit: z
+    .object({
+      text: z.string().min(1),
+      /** Куда ведёт плашка, например «https://vi.0ae.ru». */
+      href: z.url(),
+    })
+    .optional(),
 });
 
 export const sectionSchema = z.discriminatedUnion('kind', [
