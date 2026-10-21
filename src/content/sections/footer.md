@@ -10,4 +10,7 @@ legal:
     href: /privacy/
   - label: Согласие на обработку персональных данных
     href: /consent/
+credit:
+  text: Сайт сделан с помощью VoiceIDE
+  href: https://vi.0ae.ru
 ---

@@ -2,6 +2,10 @@
 import Base from '../layouts/Base.astro';
 import { site } from '../data/site';
 import { homeHref, withSection } from '../lib/base';
+import { getFooterSection } from '../lib/footer';
+
+/* Плашка внизу страницы — та же, что на лендинге. */
+const footer = await getFooterSection();
 
 const nav = [
   { label: 'Обо мне', href: '/#about' },
@@ -20,6 +24,7 @@ const nav = [
     { label: 'Политика конфиденциальности', href: '/privacy/' },
     { label: 'Согласие на обработку персональных данных', href: '/consent/' },
   ]}
+  credit={footer?.credit}
 >
   <section class="section">
     <div class="page">

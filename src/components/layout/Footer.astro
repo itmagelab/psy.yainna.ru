@@ -1,6 +1,7 @@
 ---
 import { site } from '../../data/site';
 import { internalHref } from '../../lib/base';
+import type { FooterCredit } from '../../lib/footer';
 
 export interface NavItem {
   label: string;
@@ -20,9 +21,11 @@ interface Props {
   format?: string;
   /** Короткий текст из секции kind: footer. */
   note?: string;
+  /** Плашка внизу страницы: «Сайт сделан с помощью …». */
+  credit?: FooterCredit;
 }
 
-const { items, legal, price, format, note } = Astro.props;
+const { items, legal, price, format, note, credit } = Astro.props;
 const year = new Date().getFullYear();
 ---
 
@@ -111,5 +114,17 @@ const year = new Date().getFullYear();
         Информация на сайте не является публичной офертой и не заменяет консультацию специалиста.
       </p>
     </div>
+
+    {credit && (
+      <p class="credit-plate">
+        {credit.href ? (
+          <a class="link-soft" href={credit.href} rel="noopener">
+            {credit.text}
+          </a>
+        ) : (
+          credit.text
+        )}
+      </p>
+    )}
   </div>
 </footer>

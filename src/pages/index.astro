@@ -58,6 +58,7 @@ const formatLabel = price
   price={priceLabel}
   format={formatLabel}
   note={footerEntry?.data.kind === 'footer' ? footerEntry.data.note : undefined}
+  credit={footerEntry?.data.kind === 'footer' ? footerEntry.data.credit : undefined}
 >
   {sections.map((entry: CollectionEntry<'sections'>) => {
     const Component = sectionComponents[entry.data.kind as keyof typeof sectionComponents];
