@@ -73,7 +73,12 @@ const year = new Date().getFullYear();
         </h2>
         <ul class="mt-4 space-y-2.5 text-small">
           <li>
-            <a class="link-soft" href={site.socials.telegram} rel="noopener">
+            <a
+              class="link-soft"
+              href={site.socials.telegram}
+              rel="noopener noreferrer"
+              target="_blank"
+            >
               Telegram
             </a>
           </li>
@@ -83,7 +88,12 @@ const year = new Date().getFullYear();
             </a>
           </li>
           <li>
-            <a class="link-soft" href={site.socials.instagram} rel="noopener">
+            <a
+              class="link-soft"
+              href={site.socials.instagram}
+              rel="noopener noreferrer"
+              target="_blank"
+            >
               Instagram
             </a>
           </li>
@@ -118,7 +128,7 @@ const year = new Date().getFullYear();
     {credit && (
       <p class="credit-plate">
         {credit.href ? (
-          <a class="link-soft" href={credit.href} rel="noopener">
+          <a class="link-soft" href={credit.href} rel="noopener noreferrer" target="_blank">
             {credit.text}
           </a>
         ) : (
