@@ -49,7 +49,8 @@ const defaultMethod = data.methods[0]?.network ?? 'telegram';
               <a
                 class="group flex items-center gap-4 rounded-lg border border-cream-100/15 px-5 py-4 transition-colors duration-500 ease-soft hover:border-clay-300/50 hover:bg-cream-100/5"
                 href={messengerLinks[method.network]()}
-                rel="noopener"
+                rel="noopener noreferrer"
+                target="_blank"
               >
                 <span class="text-clay-300" aria-hidden="true">
                   <Icon name={method.network} size={20} />

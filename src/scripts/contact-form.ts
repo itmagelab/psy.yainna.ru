@@ -71,15 +71,27 @@ export function initContactForm() {
     const text = buildMessage(template, { name, contact, message });
     const url = messengerLinks[method](text);
 
-    const opened = window.open(url, '_blank', 'noopener');
-    setStatus(
-      opened || typeof opened === 'undefined'
-        ? `Открываю ${names[method]}. Если окно не появилось — напишите по прямой ссылке рядом с формой.`
-        : `Браузер заблокировал новое окно. Откройте ссылку на ${names[method]} рядом с формой.`,
-      !opened,
-    );
+    /*
+     * Мессенджер открываем через временную ссылку, а не через window.open.
+     * window.open(url, '_blank', 'noopener') возвращает null и при успешном
+     * открытии: отличить его от блокировки нельзя, зато легко показать
+     * пользователю неверную ошибку и не очистить форму. Ссылка с
+     * rel="noopener noreferrer" не отдаёт чужому сайту адрес нашей страницы
+     * и не оставляет ему доступ к window.opener.
+     */
+    const link = document.createElement('a');
+    link.href = url;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    link.hidden = true;
+    document.body.append(link);
+    link.click();
+    link.remove();
 
-    if (opened) form.reset();
+    setStatus(
+      `Открываю ${names[method]}. Если окно не появилось — напишите по прямой ссылке рядом с формой.`,
+    );
+    form.reset();
   });
 
   function setStatus(text: string, isError = false) {
